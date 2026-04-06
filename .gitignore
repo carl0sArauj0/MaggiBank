@@ -2,3 +2,4 @@
 __pycache__/
 *.py[cod]
 maggibank/
+.pytest_cache
