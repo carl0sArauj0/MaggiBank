@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.processor import DataProcessor
 from app.core.config import settings
+from app.services.spending_trends import SpendingAnalytics
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -44,4 +45,21 @@ async def get_user_summary(user_id: str):
             "current_patrimonio": total_wealth,
             "most_expensive_category": top_cat
         }
+    }
+
+@app.get("/analytics/trends/{user_id}")
+async def get_spending_trends(user_id: str):
+    """
+    Returns advanced trend analysis for the mobile app charts.
+    """
+    df = DataProcessor.get_user_expenses_df(user_id)
+    
+    if df.empty:
+        raise HTTPException(status_code=404, detail="No expenses found for this user.")
+
+    return {
+        "category_distribution": SpendingAnalytics.get_category_distribution(df),
+        "daily_trend": SpendingAnalytics.get_monthly_trend(df),
+        "weekday_impact": SpendingAnalytics.get_weekday_analysis(df),
+        "total_period_spend": float(df['amount'].sum())
     }
