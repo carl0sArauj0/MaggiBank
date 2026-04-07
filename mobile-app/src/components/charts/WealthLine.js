@@ -1,12 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import {
-  VictoryLine,
-  VictoryChart,
-  VictoryAxis,
-  VictoryArea,
-  VictoryScatter,
-} from 'victory-native';
+import { LineChart } from 'react-native-chart-kit';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
@@ -15,9 +9,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const WealthLine = ({
   data = [],
   title = 'Crecimiento del Patrimonio',
-  showArea = true,
-  showDots = true,
-  height = 250,
+  height = 220,
 }) => {
   if (!data || data.length === 0) {
     return (
@@ -27,125 +19,76 @@ const WealthLine = ({
     );
   }
 
-  const chartData = data.map((item) => ({
-    x: item.label,
-    y: item.value,
-  }));
-
+  const isGrowing = data[data.length - 1]?.value >= data[0]?.value;
   const maxValue = Math.max(...data.map((d) => d.value));
   const minValue = Math.min(...data.map((d) => d.value));
-  const isGrowing = data[data.length - 1]?.value >= data[0]?.value;
+
+  const chartData = {
+    labels: data.map((d) => d.label),
+    datasets: [{
+      data: data.map((d) => d.value),
+      strokeWidth: 2,
+    }],
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <View style={styles.trendBadge}>
-          <Text style={[
-            styles.trendText,
-            { color: isGrowing ? colors.success : colors.error }
-          ]}>
-            {isGrowing ? '↑' : '↓'} {isGrowing ? 'Creciendo' : 'Bajando'}
-          </Text>
-        </View>
+        <Text style={[
+          styles.trend,
+          { color: isGrowing ? colors.success : colors.error }
+        ]}>
+          {isGrowing ? '↑ Creciendo' : '↓ Bajando'}
+        </Text>
       </View>
 
-      {/* Chart */}
-      <VictoryChart
+      <LineChart
+        data={chartData}
         width={SCREEN_WIDTH - 48}
         height={height}
-        padding={{ top: 20, bottom: 40, left: 60, right: 20 }}
-      >
-        {/* X Axis */}
-        <VictoryAxis
-          style={{
-            axis: { stroke: colors.border },
-            tickLabels: {
-              fill: colors.textSecondary,
-              fontFamily: typography.body,
-              fontSize: 10,
-            },
-            grid: { stroke: 'transparent' },
-          }}
-        />
+        chartConfig={{
+          backgroundColor: colors.backgroundSecondary,
+          backgroundGradientFrom: colors.backgroundSecondary,
+          backgroundGradientTo: colors.backgroundSecondary,
+          decimalPlaces: 0,
+          color: (opacity = 1) => isGrowing
+            ? `rgba(48, 209, 88, ${opacity})`
+            : `rgba(255, 69, 58, ${opacity})`,
+          labelColor: (opacity = 1) =>
+            `rgba(142, 142, 147, ${opacity})`,
+          propsForDots: {
+            r: '4',
+            strokeWidth: '2',
+            stroke: isGrowing ? colors.success : colors.error,
+          },
+          propsForBackgroundLines: {
+            strokeDasharray: '4 4',
+            stroke: colors.border,
+            strokeWidth: 0.5,
+          },
+        }}
+        bezier
+        style={styles.chart}
+        withInnerLines={true}
+        withOuterLines={false}
+        formatYLabel={(value) =>
+          `$${(parseInt(value) / 1000).toFixed(0)}k`
+        }
+      />
 
-        {/* Y Axis */}
-        <VictoryAxis
-          dependentAxis
-          tickFormat={(value) => `$${(value / 1000).toFixed(0)}k`}
-          style={{
-            axis: { stroke: colors.border },
-            tickLabels: {
-              fill: colors.textSecondary,
-              fontFamily: typography.body,
-              fontSize: 10,
-            },
-            grid: {
-              stroke: colors.border,
-              strokeDasharray: '4 4',
-              strokeWidth: 0.5,
-            },
-          }}
-        />
-
-        {/* Area fill */}
-        {showArea && (
-          <VictoryArea
-            data={chartData}
-            style={{
-              data: {
-                fill: isGrowing
-                  ? 'rgba(48, 209, 88, 0.08)'
-                  : 'rgba(255, 69, 58, 0.08)',
-                stroke: 'transparent',
-              },
-            }}
-            interpolation="monotoneX"
-          />
-        )}
-
-        {/* Line */}
-        <VictoryLine
-          data={chartData}
-          style={{
-            data: {
-              stroke: isGrowing ? colors.success : colors.error,
-              strokeWidth: 2,
-            },
-          }}
-          interpolation="monotoneX"
-        />
-
-        {/* Dots */}
-        {showDots && (
-          <VictoryScatter
-            data={chartData}
-            size={4}
-            style={{
-              data: {
-                fill: colors.background,
-                stroke: isGrowing ? colors.success : colors.error,
-                strokeWidth: 2,
-              },
-            }}
-          />
-        )}
-      </VictoryChart>
-
-      {/* Stats row */}
       <View style={styles.statsRow}>
         <View style={styles.statItem}>
           <Text style={styles.statLabel}>MÍNIMO</Text>
           <Text style={styles.statValue}>
-            ${minValue.toLocaleString()}
+            ${minValue.toLocaleString('es-CO')}
           </Text>
         </View>
         <View style={styles.statDivider} />
         <View style={styles.statItem}>
           <Text style={styles.statLabel}>MÁXIMO</Text>
           <Text style={styles.statValue}>
-            ${maxValue.toLocaleString()}
+            ${maxValue.toLocaleString('es-CO')}
           </Text>
         </View>
         <View style={styles.statDivider} />
@@ -155,7 +98,7 @@ const WealthLine = ({
             styles.statValue,
             { color: isGrowing ? colors.success : colors.error }
           ]}>
-            ${data[data.length - 1]?.value.toLocaleString()}
+            ${data[data.length - 1]?.value.toLocaleString('es-CO')}
           </Text>
         </View>
       </View>
@@ -164,9 +107,7 @@ const WealthLine = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
+  container: { width: '100%' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -177,16 +118,13 @@ const styles = StyleSheet.create({
     ...typography.styles.h3,
     color: colors.textPrimary,
   },
-  trendBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  trendText: {
+  trend: {
     ...typography.styles.caption,
     fontFamily: typography.heading,
+  },
+  chart: {
+    borderRadius: 8,
+    marginLeft: -16,
   },
   statsRow: {
     flexDirection: 'row',

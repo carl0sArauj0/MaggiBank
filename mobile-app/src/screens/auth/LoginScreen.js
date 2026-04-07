@@ -8,6 +8,7 @@ import {
   Platform,
   ScrollView,
   Alert,
+  Image,
 } from 'react-native';
 import ScreenWrapper from '../../components/layout/ScreenWrapper';
 import MaggiInput from '../../components/ui/MaggiInput';
@@ -57,7 +58,11 @@ const LoginScreen = ({ navigation }) => {
         >
           {/* Logo & Title */}
           <View style={styles.header}>
-            <Text style={styles.logo}>◈</Text>
+            <Image
+  source={require('../../../assets/branding/maggi_logo_dark.png')}
+  style={styles.logoImage}
+  resizeMode="contain"
+/>
             <Text style={styles.title}>MaggiBank</Text>
             <Text style={styles.subtitle}>
               Tu patrimonio, bajo control.
@@ -131,6 +136,11 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     letterSpacing: 2,
   },
+  logoImage: {
+  width: 320,
+  height: 320,
+  marginBottom: -80,
+},
   subtitle: {
     ...typography.styles.bodySmall,
     color: colors.textSecondary,

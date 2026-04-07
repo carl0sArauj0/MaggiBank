@@ -1,11 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
-import {
-  VictoryBar,
-  VictoryChart,
-  VictoryAxis,
-  VictoryGroup,
-} from 'victory-native';
+import { BarChart } from 'react-native-chart-kit';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
@@ -14,9 +9,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 const BarAnalysis = ({
   data = [],
   title = 'Análisis Comparativo',
-  compareData = null,
-  height = 250,
-  showLabels = true,
+  height = 220,
 }) => {
   if (!data || data.length === 0) {
     return (
@@ -26,121 +19,48 @@ const BarAnalysis = ({
     );
   }
 
-  const chartData = data.map((item) => ({
-    x: item.label,
-    y: item.value,
-  }));
-
-  const compareChartData = compareData
-    ? compareData.map((item) => ({
-        x: item.label,
-        y: item.value,
-      }))
-    : null;
+  const chartData = {
+    labels: data.map((d) => d.label),
+    datasets: [{
+      data: data.map((d) => d.value),
+    }],
+  };
 
   const maxValue = Math.max(...data.map((d) => d.value));
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
-        {compareData && (
-          <View style={styles.legendRow}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: colors.light }]} />
-              <Text style={styles.legendText}>Actual</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: colors.accent }]} />
-              <Text style={styles.legendText}>Anterior</Text>
-            </View>
-          </View>
-        )}
-      </View>
+      <Text style={styles.title}>{title}</Text>
 
-      {/* Chart */}
-      <VictoryChart
+      <BarChart
+        data={chartData}
         width={SCREEN_WIDTH - 48}
         height={height}
-        padding={{ top: 20, bottom: 40, left: 60, right: 20 }}
-        domainPadding={{ x: 20 }}
-      >
-        <VictoryAxis
-          style={{
-            axis: { stroke: colors.border },
-            tickLabels: {
-              fill: colors.textSecondary,
-              fontFamily: typography.body,
-              fontSize: 10,
-              angle: data.length > 5 ? -45 : 0,
-              textAnchor: data.length > 5 ? 'end' : 'middle',
-            },
-            grid: { stroke: 'transparent' },
-          }}
-        />
+        chartConfig={{
+          backgroundColor: colors.backgroundSecondary,
+          backgroundGradientFrom: colors.backgroundSecondary,
+          backgroundGradientTo: colors.backgroundSecondary,
+          decimalPlaces: 0,
+          color: (opacity = 1) =>
+            `rgba(245, 245, 247, ${opacity})`,
+          labelColor: (opacity = 1) =>
+            `rgba(142, 142, 147, ${opacity})`,
+          propsForBackgroundLines: {
+            strokeDasharray: '4 4',
+            stroke: colors.border,
+            strokeWidth: 0.5,
+          },
+          barPercentage: 0.6,
+        }}
+        style={styles.chart}
+        withInnerLines={true}
+        showValuesOnTopOfBars={true}
+        fromZero={true}
+        formatYLabel={(value) =>
+          `$${(parseInt(value) / 1000).toFixed(0)}k`
+        }
+      />
 
-        <VictoryAxis
-          dependentAxis
-          tickFormat={(value) => `$${(value / 1000).toFixed(0)}k`}
-          style={{
-            axis: { stroke: colors.border },
-            tickLabels: {
-              fill: colors.textSecondary,
-              fontFamily: typography.body,
-              fontSize: 10,
-            },
-            grid: {
-              stroke: colors.border,
-              strokeDasharray: '4 4',
-              strokeWidth: 0.5,
-            },
-          }}
-        />
-
-        {compareChartData ? (
-          <VictoryGroup offset={12}>
-            <VictoryBar
-              data={chartData}
-              cornerRadius={{ top: 4 }}
-              style={{
-                data: { fill: colors.light },
-              }}
-            />
-            <VictoryBar
-              data={compareChartData}
-              cornerRadius={{ top: 4 }}
-              style={{
-                data: { fill: colors.accent },
-              }}
-            />
-          </VictoryGroup>
-        ) : (
-          <VictoryBar
-            data={chartData}
-            cornerRadius={{ top: 4 }}
-            labels={showLabels
-              ? ({ datum }) => `$${(datum.y / 1000).toFixed(1)}k`
-              : null
-            }
-            style={{
-              data: {
-                fill: ({ datum }) =>
-                  datum.y === maxValue
-                    ? colors.light
-                    : colors.backgroundTertiary,
-              },
-              labels: {
-                fill: colors.textSecondary,
-                fontFamily: typography.body,
-                fontSize: 9,
-              },
-            }}
-          />
-        )}
-      </VictoryChart>
-
-      {/* Summary row */}
       <View style={styles.summaryRow}>
         {data.slice(0, 3).map((item, index) => (
           <View key={index} style={styles.summaryItem}>
@@ -148,7 +68,7 @@ const BarAnalysis = ({
               {item.label}
             </Text>
             <Text style={styles.summaryValue}>
-              ${item.value.toLocaleString()}
+              ${item.value.toLocaleString('es-CO')}
             </Text>
           </View>
         ))}
@@ -158,36 +78,15 @@ const BarAnalysis = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
+  container: { width: '100%' },
   title: {
     ...typography.styles.h3,
     color: colors.textPrimary,
+    marginBottom: 8,
   },
-  legendRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  legendText: {
-    ...typography.styles.caption,
-    color: colors.textSecondary,
+  chart: {
+    borderRadius: 8,
+    marginLeft: -16,
   },
   summaryRow: {
     flexDirection: 'row',
