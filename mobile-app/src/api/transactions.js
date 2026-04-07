@@ -8,7 +8,13 @@ export const getTransactions = async () => {
     .order('created_at', { ascending: false });
 
   if (error) throw error;
-  return data;
+
+  // Map DB fields to frontend fields
+  return data.map((item) => ({
+    ...item,
+    title: item.description,
+    category: item.category_name,
+  }));
 };
 
 // Get transactions by account
@@ -29,9 +35,9 @@ export const addTransaction = async (transaction) => {
     .from('expenses')
     .insert([
       {
-        title: transaction.title,
+        description: transaction.title,        // was: title
         amount: transaction.amount,
-        category: transaction.category,
+        category_name: transaction.category,   // was: category
         account_id: transaction.accountId,
         notes: transaction.notes || null,
         date: transaction.date || new Date().toISOString(),

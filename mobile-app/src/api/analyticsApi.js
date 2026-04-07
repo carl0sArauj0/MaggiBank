@@ -1,9 +1,6 @@
 import Constants from 'expo-constants';
 
-const ANALYTICS_BASE_URL = Constants.expoConfig?.extra?.analyticsUrl 
-  || process.env.ANALYTICS_URL 
-  || 'http://localhost:8000';
-
+const ANALYTICS_BASE_URL = 'http://192.168.1.5:8000';
 // Helper function for API calls
 const fetchFromAnalytics = async (endpoint, options = {}) => {
   const response = await fetch(`${ANALYTICS_BASE_URL}${endpoint}`, {
