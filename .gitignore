@@ -2,3 +2,6 @@
 __pycache__/
 *.py[cod]
 maggibank/
+.aider.chat.history.md
+.aider.input.history
+.aider.tags.cache.v4

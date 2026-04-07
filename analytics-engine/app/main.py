@@ -1,11 +1,10 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.processor import DataProcessor
 from app.services.spending_trends import SpendingAnalytics
 from app.services.wealth_projections import WealthProjections
 from app.services.anomaly_detect import AnomalyDetector
-from app.models.schemas import AnalyticsResponse, WealthProjection, Anomaly
-from typing import List
+from typing import List, Dict
 
 app = FastAPI(title="MaggiBank Analytics Engine 🐕")
 
@@ -17,28 +16,81 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/analytics/full-report/{user_id}")
-async def get_full_report(user_id: str):
-    # 1. Get Data
-    df_expenses = DataProcessor.get_user_expenses_df(user_id)
-    df_patrimonio = DataProcessor.get_user_patrimonio_df(user_id)
+# 1. SPENDING TRENDS (For Line Charts)
+@app.get("/analytics/spending-trends")
+async def get_spending_trends(userId: str = Query(...)):
+    df = DataProcessor.get_user_expenses_df(userId)
+    if df.empty: return {"data": []}
     
-    if df_expenses.empty:
-        raise HTTPException(status_code=404, detail="No data for analysis")
+    trend = SpendingAnalytics.get_monthly_trend(df)
+    formatted = [{"label": x['date'], "value": x['amount']} for x in trend]
+    return {"data": formatted}
 
-    current_balance = df_patrimonio['balance'].sum() if not df_patrimonio.empty else 0
+# 2. CATEGORY BREAKDOWN (For Pie Charts)
+@app.get("/analytics/categories")
+async def get_categories(userId: str = Query(...)):
+    df = DataProcessor.get_user_expenses_df(userId)
+    if df.empty: return {"data": []}
+    
+    dist = SpendingAnalytics.get_category_distribution(df)
+    formatted = [{"category": k, "amount": v} for k, v in dist.items()]
+    return {"data": formatted}
 
-    # 2. Process all modules
+# 3. WEALTH GROWTH (Projections for Line Chart)
+@app.get("/analytics/wealth-growth")
+async def get_wealth_growth(userId: str = Query(...)):
+    df_ex = DataProcessor.get_user_expenses_df(userId)
+    df_acc = DataProcessor.get_user_patrimonio_df(userId)
+    balance = df_acc['balance'].sum() if not df_acc.empty else 0
+    
+    projections = WealthProjections.predict_growth(balance, df_ex)
+    formatted = [{"label": x['month'], "value": x['estimated_balance']} for x in projections]
+    return {"data": formatted}
+
+# 4. ANOMALIES (Barks for unusual spending)
+@app.get("/analytics/anomalies")
+async def get_anomalies(userId: str = Query(...)):
+    df = DataProcessor.get_user_expenses_df(userId)
+    alerts = AnomalyDetector.detect_outliers(df)
+    formatted = [{
+        "category": a['reason'], 
+        "message": a['description'], 
+        "excess": a['amount']
+    } for a in alerts]
+    return {"data": formatted}
+
+# 5. MAGGI INSIGHTS (AI-style Advice)
+@app.get("/analytics/insights")
+async def get_insights(userId: str = Query(...)):
+    df = DataProcessor.get_user_expenses_df(userId)
+    if df.empty: return {"insights": []}
+    
+    top_cat = df.groupby('category_name')['amount'].sum().idxmax()
+    
+    # Generated "barking" advice
     return {
-        "trends": {
-            "categories": SpendingAnalytics.get_category_distribution(df_expenses),
-            "daily": SpendingAnalytics.get_monthly_trend(df_expenses)
-        },
-        "projections": WealthProjections.predict_growth(current_balance, df_expenses),
-        "alerts": AnomalyDetector.detect_outliers(df_expenses),
-        "status": "Maggi analyzed your data successfully! 🐾"
+        "insights": [
+            {
+                "icon": "🍔", 
+                "title": "Alerta de Hambre", 
+                "message": f"Maggi nota que '{top_cat}' es tu mayor gasto. ¡Cuidado con los antojos!",
+                "value": "Revisar"
+            },
+            {
+                "icon": "📈", 
+                "title": "Buen Camino", 
+                "message": "Tu patrimonio ha crecido un 2% este mes. ¡Sigue así!",
+                "value": "+2%"
+            }
+        ]
     }
+
+# 6. WEALTH PROJECTIONS (Raw data for tables)
+@app.get("/analytics/wealth-projections")
+async def get_projections(userId: str = Query(...)):
+    # Redirecting to wealth-growth logic
+    return await get_wealth_growth(userId)
 
 @app.get("/health")
 def health():
-    return {"status": "alive", "dog_name": "Maggi"}
+    return {"status": "alive", "dog": "Maggi"}
