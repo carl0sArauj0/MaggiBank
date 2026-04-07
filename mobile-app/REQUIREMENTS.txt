@@ -1,0 +1,95 @@
+========================================
+  MaggiBank - Mobile App Requirements
+========================================
+
+PROJECT OVERVIEW
+----------------
+MaggiBank is a React Native mobile banking application built with Expo.
+App name   : MaggiBank
+Version    : 1.0.0
+Slug       : maggibank
+Orientation: Portrait only
+Theme      : Dark
+
+
+SYSTEM REQUIREMENTS
+-------------------
+- Node.js  : v18 or higher (LTS recommended)
+- npm      : v9 or higher (comes with Node.js)
+- Git      : any recent version
+
+
+TOOLS & CLI
+-----------
+- Expo CLI : install globally with  -->  npm install -g expo-cli
+             or use npx (no global install needed)
+- EAS CLI  : optional, for building/submitting to stores
+             install with  -->  npm install -g eas-cli
+
+
+PLATFORM REQUIREMENTS
+---------------------
+To run on Android:
+  - Android Studio installed with Android SDK
+  - An Android emulator configured, OR a physical Android device
+    with USB debugging enabled
+  - ANDROID_HOME environment variable set correctly
+
+To run on iOS (macOS only):
+  - Xcode installed (from the Mac App Store)
+  - iOS Simulator or a physical iPhone/iPad
+
+To run on Web:
+  - Any modern browser (Chrome, Firefox, Edge, Safari)
+
+
+ENVIRONMENT SETUP
+-----------------
+1. Copy or create a .env file in the root of this folder (mobile-app/).
+   It must contain the following variables:
+
+   SUPABASE_URL=<your_supabase_project_url>
+   SUPABASE_ANON_KEY=<your_supabase_anon_key>
+
+2. The app.json file contains an "extra" field with the analytics server URL:
+   "analyticsUrl": "http://<your_local_ip>:8000"
+   Update this IP to match the machine running the analytics/backend server.
+
+
+INSTALLATION
+------------
+1. Navigate to the mobile-app folder:
+     cd mobile-app
+
+2. Install dependencies:
+     npm install
+
+3. Start the development server:
+     npm start          (opens Expo Dev Tools in the browser)
+     npm run android    (starts on Android emulator/device)
+     npm run ios        (starts on iOS simulator/device — macOS only)
+     npm run web        (starts in the browser)
+
+
+MAIN DEPENDENCIES
+-----------------
+- React 19.1.0
+- React Native 0.81.5
+- Expo ~54.0.33
+- @supabase/supabase-js ^2.101.1   (backend / auth / database)
+- @react-navigation/native ^7.2.2  (navigation)
+- @react-navigation/stack ^7.8.9
+- @react-navigation/bottom-tabs ^7.15.9
+- react-native-reanimated ~4.1.1
+- react-native-gesture-handler ~2.28.0
+- react-native-chart-kit ^6.12.0   (charts/graphs)
+- expo-file-system ~19.0.21
+- expo-sharing ~14.0.8
+- @react-native-async-storage/async-storage 2.2.0
+
+
+NOTES
+-----
+- The project uses Expo's New Architecture (newArchEnabled: true).
+- Do NOT commit the .env file to version control.
+- The package is marked private and is not intended for npm publishing.
