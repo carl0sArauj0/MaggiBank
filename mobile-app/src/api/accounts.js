@@ -78,22 +78,3 @@ export const getTotalPatrimonio = async () => {
   const total = data.reduce((sum, account) => sum + account.balance, 0);
   return total;
 };
-
-// Subscribe to real-time account changes
-export const subscribeToAccounts = (callback) => {
-  const subscription = supabase
-    .channel('accounts-changes')
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'accounts' },
-      (payload) => callback(payload)
-    )
-    .subscribe();
-
-  return subscription;
-};
-
-// Unsubscribe from real-time changes
-export const unsubscribeFromAccounts = async (subscription) => {
-  await supabase.removeChannel(subscription);
-};

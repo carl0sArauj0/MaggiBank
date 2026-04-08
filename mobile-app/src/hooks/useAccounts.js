@@ -5,8 +5,6 @@ import {
   updateAccount,
   deleteAccount,
   getTotalPatrimonio,
-  subscribeToAccounts,
-  unsubscribeFromAccounts,
 } from '../api/accounts';
 
 const useAccounts = () => {
@@ -30,31 +28,9 @@ const useAccounts = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchAccounts();
-
-    // Real-time subscription
-    const subscription = subscribeToAccounts((payload) => {
-      if (payload.eventType === 'INSERT') {
-        setAccounts((prev) => [payload.new, ...prev]);
-        setTotalPatrimonio((prev) => prev + payload.new.balance);
-      } else if (payload.eventType === 'DELETE') {
-        setAccounts((prev) =>
-          prev.filter((a) => a.id !== payload.old.id)
-        );
-        setTotalPatrimonio((prev) => prev - payload.old.balance);
-      } else if (payload.eventType === 'UPDATE') {
-        setAccounts((prev) =>
-          prev.map((a) => (a.id === payload.new.id ? payload.new : a))
-        );
-        fetchAccounts();
-      }
-    });
-
-    return () => {
-      unsubscribeFromAccounts(subscription);
-    };
-  }, [fetchAccounts]);
+useEffect(() => {
+  fetchAccounts();
+}, [fetchAccounts]);
 
   const createAccount = async (account) => {
     try {

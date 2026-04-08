@@ -74,21 +74,3 @@ export const deleteTransaction = async (id) => {
   return true;
 };
 
-// Subscribe to real-time transaction changes
-export const subscribeToTransactions = (callback) => {
-  const subscription = supabase
-    .channel('expenses-changes')
-    .on(
-      'postgres_changes',
-      { event: '*', schema: 'public', table: 'expenses' },
-      (payload) => callback(payload)
-    )
-    .subscribe();
-
-  return subscription;
-};
-
-// Unsubscribe from real-time changes
-export const unsubscribeFromTransactions = async (subscription) => {
-  await supabase.removeChannel(subscription);
-};

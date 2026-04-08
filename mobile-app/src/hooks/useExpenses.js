@@ -4,8 +4,6 @@ import {
   addTransaction,
   deleteTransaction,
   updateTransaction,
-  subscribeToTransactions,
-  unsubscribeFromTransactions,
 } from '../api/transactions';
 
 const useExpenses = () => {
@@ -33,38 +31,9 @@ const useExpenses = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchExpenses();
-
-    // Real-time subscription
-    const subscription = subscribeToTransactions((payload) => {
-      if (payload.eventType === 'INSERT') {
-        setExpenses((prev) => {
-          const updated = [payload.new, ...prev];
-          calculateTotal(updated);
-          return updated;
-        });
-      } else if (payload.eventType === 'DELETE') {
-        setExpenses((prev) => {
-          const updated = prev.filter((e) => e.id !== payload.old.id);
-          calculateTotal(updated);
-          return updated;
-        });
-      } else if (payload.eventType === 'UPDATE') {
-        setExpenses((prev) => {
-          const updated = prev.map((e) =>
-            e.id === payload.new.id ? payload.new : e
-          );
-          calculateTotal(updated);
-          return updated;
-        });
-      }
-    });
-
-    return () => {
-      unsubscribeFromTransactions(subscription);
-    };
-  }, [fetchExpenses]);
+ useEffect(() => {
+  fetchExpenses();
+}, [fetchExpenses]);
 
   const addExpense = async (expense) => {
     try {

@@ -80,13 +80,13 @@ const TabNavigator = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: colors.backgroundSecondary,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    height: 70,
-    paddingBottom: 8,
-    paddingTop: 8,
-  },
+  backgroundColor: colors.backgroundSecondary,
+  borderTopWidth: 1,
+  borderTopColor: colors.border,
+  height: 60,
+  paddingBottom: 6,
+  paddingTop: 6,
+},
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -97,9 +97,10 @@ const styles = StyleSheet.create({
     color: colors.light,
   },
   tabLabel: {
-    ...typography.styles.caption,
-    letterSpacing: 0.5,
-  },
+  ...typography.styles.caption,
+  letterSpacing: 0,
+  fontSize: 7,
+},
 });
 
 export default TabNavigator;

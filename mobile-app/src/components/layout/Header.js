@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 60,
+    height: 60,
   },
   actionButton: {
     paddingHorizontal: 12,
