@@ -16,6 +16,10 @@ import useAccounts from '../../hooks/useAccounts';
 import useExpenses from '../../hooks/useExpenses';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { useState } from 'react';
+import { Modal } from 'react-native';
+import AddAccount from './AddAccount';
+
 
 const MaggiCard = ({ account, onPress }) => (
   <TouchableOpacity
@@ -60,6 +64,7 @@ const Dashboard = ({ navigation }) => {
   } = useExpenses();
 
   const isRefreshing = accountsLoading || expensesLoading;
+  const [showAddAccount, setShowAddAccount] = useState(false);
 
   const onRefresh = () => {
     fetchAccounts();
@@ -105,24 +110,24 @@ const Dashboard = ({ navigation }) => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Mis Cuentas</Text>
-            <TouchableOpacity>
-              <Text style={styles.sectionAction}>+ Agregar</Text>
-            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowAddAccount(true)}>
+  <Text style={styles.sectionAction}>+ Agregar</Text>
+</TouchableOpacity>
           </View>
 
           {accounts.length === 0 ? (
             <CardContainer variant="secondary" style={styles.emptyCard}>
-              <Text style={styles.emptyText}>
-                No tienes cuentas aún.
-              </Text>
-              <MaggiButton
-                title="Crear cuenta"
-                variant="outline"
-                size="sm"
-                style={styles.emptyButton}
-                onPress={() => {}}
-              />
-            </CardContainer>
+  <Text style={styles.emptyText}>
+    No tienes cuentas aún.
+  </Text>
+  <MaggiButton
+    title="Crear cuenta"
+    variant="outline"
+    size="sm"
+    style={styles.emptyButton}
+    onPress={() => setShowAddAccount(true)}
+  />
+</CardContainer>
           ) : (
             <ScrollView
               horizontal
@@ -204,14 +209,24 @@ const Dashboard = ({ navigation }) => {
 
         {/* Add Expense FAB area */}
         <View style={styles.fabArea}>
-          <MaggiButton
-            title="+ Agregar Gasto"
-            onPress={() => navigation.navigate('Expenses')}
-            size="lg"
-            style={styles.fabButton}
-          />
+  <MaggiButton
+    title="+ Agregar Gasto"
+    onPress={() => navigation.navigate('Expenses')}
+    size="lg"
+    style={styles.fabButton}
+  />
         </View>
       </ScrollView>
+
+      <Modal
+        visible={showAddAccount}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowAddAccount(false)}
+      >
+        <AddAccount onClose={() => setShowAddAccount(false)} />
+      </Modal>
+
     </ScreenWrapper>
   );
 };
