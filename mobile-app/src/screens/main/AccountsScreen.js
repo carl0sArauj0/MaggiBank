@@ -93,7 +93,6 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
     setLoading(true);
     await addBalanceToAccount(account.id, parseFloat(addAmount));
 
-    // Register as a transaction so it appears in recent transactions
     await supabase
       .from('expenses')
       .insert([{
@@ -105,19 +104,14 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
         date: new Date().toISOString(),
       }]);
 
-      await fetchExpenses();
-    setSuccessMessage(`Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
+    await fetchExpenses();
+    setSuccessMessage(`Se agregaron $${parseInt(addAmount).toLocaleString('es-CO')} a ${account.name}`);
     setShowUpdateModal(false);
     setAddAmount('');
-    setShowSuccessModal(true);
-    onUpdated();
-
-    Alert.alert('¡Listo!', `Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
-    setShowUpdateModal(false);
-    setAddAmount('');
+    setShowSuccessModal(true);  // ← only this, NO Alert.alert
     onUpdated();
   } catch (err) {
-    Alert.alert('Error', err.message);
+    Alert.alert('Error', err.message);  // ← keep only this error alert
   } finally {
     setLoading(false);
   }

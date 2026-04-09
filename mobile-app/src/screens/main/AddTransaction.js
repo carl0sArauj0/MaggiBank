@@ -17,6 +17,9 @@ import useAccounts from '../../hooks/useAccounts';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
+
+const [showSuccess, setShowSuccess] = useState(false);
+
 const CATEGORIES = [
   { label: 'Comida', icon: '🍔' },
   { label: 'Transporte', icon: '🚗' },
@@ -63,7 +66,7 @@ const AddTransaction = ({ onClose }) => {
         notes,
         date: new Date().toISOString(),
       });
-      Alert.alert('¡Listo!', 'Gasto agregado correctamente.');
+      setShowSuccess(true);
       onClose();
     } catch (err) {
       Alert.alert('Error', err.message);
@@ -201,6 +204,31 @@ const AddTransaction = ({ onClose }) => {
           />
         </ScrollView>
       </View>
+      {/* Success Modal */}
+<Modal
+  visible={showSuccess}
+  animationType="fade"
+  transparent={true}
+  onRequestClose={() => setShowSuccess(false)}
+>
+  <View style={successStyles.overlay}>
+    <View style={successStyles.modal}>
+      <Text style={successStyles.icon}>✓</Text>
+      <Text style={successStyles.title}>¡Listo!</Text>
+      <Text style={successStyles.message}>Gasto agregado correctamente.</Text>
+      <MaggiButton
+        title="OK"
+        variant="primary"
+        size="sm"
+        onPress={() => {
+          setShowSuccess(false);
+          onClose();
+        }}
+        style={successStyles.button}
+      />
+    </View>
+  </View>
+</Modal>
     </KeyboardAvoidingView>
   );
 };
@@ -340,6 +368,44 @@ const styles = StyleSheet.create({
   submitButton: {
     width: '100%',
     marginTop: 8,
+  },
+});
+
+const successStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modal: {
+    backgroundColor: colors.backgroundSecondary,
+    borderRadius: 20,
+    padding: 32,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  icon: {
+    fontSize: 40,
+    color: colors.success,
+    marginBottom: 12,
+  },
+  title: {
+    ...typography.styles.h2,
+    color: colors.textPrimary,
+    marginBottom: 8,
+  },
+  message: {
+    ...typography.styles.bodySmall,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  button: {
+    minWidth: 120,
   },
 });
 
