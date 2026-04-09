@@ -69,3 +69,22 @@ async def get_full_report(user_id: str):
 @app.get("/health")
 def health():
     return {"status": "alive", "dog_name": "Maggi"}
+
+@app.get("/categories")
+async def get_categories(userId: str = Query(...)):
+    res = supabase.table("categories").select("*").eq("user_id", userId).order("is_default", desc=True).execute()
+    return {"data": res.data}
+
+@app.post("/categories")
+async def create_category(data: dict, userId: str = Query(...)):
+    # data debe traer { "label": "...", "icon": "..." }
+    data["user_id"] = userId
+    data["is_default"] = False
+    res = supabase.table("categories").insert(data).execute()
+    return {"data": res.data}
+
+@app.delete("/categories/{cat_id}")
+async def delete_category(cat_id: str, userId: str = Query(...)):
+    # Solo permitimos borrar si no es por defecto
+    res = supabase.table("categories").delete().eq("id", cat_id).eq("user_id", userId).eq("is_default", False).execute()
+    return {"status": "deleted" if res.data else "error"}
