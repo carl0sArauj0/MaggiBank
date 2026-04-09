@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Alert,
   Modal,
 } from 'react-native';
 import { GestureHandlerRootView, Swipeable } from 'react-native-gesture-handler';
@@ -13,6 +12,7 @@ import ScreenWrapper from '../../components/layout/ScreenWrapper';
 import Header from '../../components/layout/Header';
 import CardContainer from '../../components/ui/CardContainer';
 import MaggiButton from '../../components/ui/MaggiButton';
+import MaggiAlert from '../../components/ui/MaggiAlert';
 import useExpenses from '../../hooks/useExpenses';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -30,24 +30,11 @@ const CATEGORY_ICONS = {
   Otros: '◈',
 };
 
-const ExpenseItem = ({ expense, onDelete }) => {
+const ExpenseItem = ({ expense, onRequestDelete }) => {
   const renderRightActions = () => (
     <TouchableOpacity
       style={styles.deleteAction}
-      onPress={() => {
-        Alert.alert(
-          'Eliminar gasto',
-          '¿Estás seguro?',
-          [
-            { text: 'Cancelar', style: 'cancel' },
-            {
-              text: 'Eliminar',
-              style: 'destructive',
-              onPress: () => onDelete(expense.id),
-            },
-          ]
-        );
-      }}
+      onPress={() => onRequestDelete(expense.id)}
     >
       <Text style={styles.deleteActionText}>Eliminar</Text>
     </TouchableOpacity>
@@ -87,6 +74,8 @@ const ExpensesList = () => {
   const { expenses, loading, totalExpenses, removeExpense, fetchExpenses } = useExpenses();
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'warning', buttons: null });
+  const closeAlert = () => setAlertConfig(c => ({ ...c, visible: false }));
 
   const categories = ['Todos', ...Object.keys(CATEGORY_ICONS)];
 
@@ -98,8 +87,21 @@ const ExpensesList = () => {
     try {
       await removeExpense(id);
     } catch (err) {
-      Alert.alert('Error', err.message);
+      setAlertConfig({ visible: true, title: 'Error', message: err.message, type: 'error', buttons: null });
     }
+  };
+
+  const handleRequestDelete = (id) => {
+    setAlertConfig({
+      visible: true,
+      title: 'Eliminar gasto',
+      message: '¿Estás seguro?',
+      type: 'warning',
+      buttons: [
+        { text: 'Cancelar', style: 'cancel', onPress: closeAlert },
+        { text: 'Eliminar', style: 'destructive', onPress: () => { closeAlert(); handleDelete(id); } },
+      ],
+    });
   };
 
   return (
@@ -157,7 +159,7 @@ const ExpensesList = () => {
           renderItem={({ item }) => (
             <ExpenseItem
               expense={item}
-              onDelete={handleDelete}
+              onRequestDelete={handleRequestDelete}
             />
           )}
         />
@@ -170,6 +172,15 @@ const ExpensesList = () => {
         >
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>
+
+        <MaggiAlert
+          visible={alertConfig.visible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          onClose={closeAlert}
+          buttons={alertConfig.buttons}
+        />
 
         {/* Add Transaction Modal */}
         <Modal

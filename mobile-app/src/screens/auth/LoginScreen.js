@@ -7,12 +7,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   Image,
 } from 'react-native';
 import ScreenWrapper from '../../components/layout/ScreenWrapper';
 import MaggiInput from '../../components/ui/MaggiInput';
 import MaggiButton from '../../components/ui/MaggiButton';
+import MaggiAlert from '../../components/ui/MaggiAlert';
 import { useAuth } from '../../../src/context/AuthContext';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -23,6 +23,7 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'error' });
 
   const validate = () => {
     const newErrors = {};
@@ -40,7 +41,7 @@ const LoginScreen = ({ navigation }) => {
       setLoading(true);
       await login(email, password);
     } catch (err) {
-      Alert.alert('Error', err.message);
+      setAlertConfig({ visible: true, title: 'Error', message: err.message, type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -109,6 +110,13 @@ const LoginScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <MaggiAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={() => setAlertConfig(c => ({ ...c, visible: false }))}
+      />
     </ScreenWrapper>
   );
 };

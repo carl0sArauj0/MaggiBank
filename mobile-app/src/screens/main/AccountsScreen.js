@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Alert,
   Modal,
   ScrollView,
   RefreshControl,
@@ -15,6 +14,7 @@ import Header from '../../components/layout/Header';
 import CardContainer from '../../components/ui/CardContainer';
 import MaggiButton from '../../components/ui/MaggiButton';
 import MaggiInput from '../../components/ui/MaggiInput';
+import MaggiAlert from '../../components/ui/MaggiAlert';
 import AddAccount from './AddAccount';
 import useAccounts from '../../hooks/useAccounts';
 import useExpenses from '../../hooks/useExpenses';
@@ -27,9 +27,14 @@ import { formatCurrency } from '../../utils/formatters';
 const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   const { expenses, fetchExpenses } = useExpenses();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false); // ← ADD
-  const [successMessage, setSuccessMessage] = useState('');        // ← ADD
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'success', buttons: null });
   const [addAmount, setAddAmount] = useState('');
+
+  const showAlert = (title, message, type = 'success', buttons = null) => {
+    setAlertConfig({ title, message, type, buttons });
+    setAlertVisible(true);
+  };
   const [amountError, setAmountError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -46,35 +51,41 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
     .slice(0, 5);
 
   const handleDelete = () => {
-    Alert.alert(
-      '⚠️ Eliminar cuenta',
+    showAlert(
+      'Eliminar cuenta',
       `¿Estás seguro que deseas eliminar "${account.name}"?`,
+      'warning',
       [
-        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Cancelar', style: 'cancel', onPress: () => setAlertVisible(false) },
         {
           text: 'Continuar',
           style: 'destructive',
           onPress: () => {
-            Alert.alert(
-              '⚠️ Confirmación final',
-              'Esta acción es irreversible. Se eliminarán todos los datos asociados a esta cuenta.',
-              [
-                { text: 'Cancelar', style: 'cancel' },
-                {
-                  text: 'Eliminar definitivamente',
-                  style: 'destructive',
-                  onPress: async () => {
-                    try {
-                      await deleteAccount(account.id);
-                      onDeleted();
-                      onClose();
-                    } catch (err) {
-                      Alert.alert('Error', err.message);
-                    }
+            setAlertVisible(false);
+            setTimeout(() => {
+              showAlert(
+                'Confirmación final',
+                'Esta acción es irreversible. Se eliminarán todos los datos asociados a esta cuenta.',
+                'warning',
+                [
+                  { text: 'Cancelar', style: 'cancel', onPress: () => setAlertVisible(false) },
+                  {
+                    text: 'Eliminar',
+                    style: 'destructive',
+                    onPress: async () => {
+                      setAlertVisible(false);
+                      try {
+                        await deleteAccount(account.id);
+                        onDeleted();
+                        onClose();
+                      } catch (err) {
+                        showAlert('Error', err.message, 'error');
+                      }
+                    },
                   },
-                },
-              ]
-            );
+                ]
+              );
+            }, 300);
           },
         },
       ]
@@ -106,13 +117,12 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
       }]);
 
     await fetchExpenses();
-    setSuccessMessage(`Se agregaron ${formatCurrency(parseInt(addAmount))} a ${account.name}`);
     setShowUpdateModal(false);
     setAddAmount('');
-    setShowSuccessModal(true);  // ← only this, NO Alert.alert
+    showAlert('¡Listo!', `Se agregaron $${parseInt(addAmount).toLocaleString('es-CO')} a ${account.name}`, 'success');
     onUpdated();
   } catch (err) {
-    Alert.alert('Error', err.message);  // ← keep only this error alert
+    showAlert('Error', err.message, 'error');
   } finally {
     setLoading(false);
   }
@@ -256,27 +266,14 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
             </View>
           </View>
         </Modal>
-        <Modal
-          visible={showSuccessModal}
-          animationType="fade"
-          transparent={true}
-          onRequestClose={() => setShowSuccessModal(false)}
-        >
-          <View style={styles.successOverlay}>
-            <View style={styles.successModal}>
-              <Text style={styles.successIcon}>✓</Text>
-              <Text style={styles.successTitle}>¡Listo!</Text>
-              <Text style={styles.successMessage}>{successMessage}</Text>
-              <MaggiButton
-                title="OK"
-                variant="primary"
-                size="sm"
-                onPress={() => setShowSuccessModal(false)}
-                style={styles.successButton}
-              />
-            </View>
-          </View>
-        </Modal>
+        <MaggiAlert
+          visible={alertVisible}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          onClose={() => setAlertVisible(false)}
+          buttons={alertConfig.buttons}
+        />
       </View>
     </View>
   );
@@ -657,41 +654,6 @@ const styles = StyleSheet.create({
   updateConfirmBtn: {
     flex: 1,
   },
-  successOverlay: {
-  flex: 1,
-  backgroundColor: colors.overlay,
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 20,
-},
-successModal: {
-  backgroundColor: colors.backgroundSecondary,
-  borderRadius: 20,
-  padding: 32,
-  width: '100%',
-  alignItems: 'center',
-  borderWidth: 1,
-  borderColor: colors.borderLight,
-},
-successIcon: {
-  fontSize: 40,
-  color: colors.success,
-  marginBottom: 12,
-},
-successTitle: {
-  ...typography.styles.h2,
-  color: colors.textPrimary,
-  marginBottom: 8,
-},
-successMessage: {
-  ...typography.styles.bodySmall,
-  color: colors.textSecondary,
-  textAlign: 'center',
-  marginBottom: 24,
-},
-successButton: {
-  minWidth: 120,
-},
 });
 
 export default AccountsScreen;

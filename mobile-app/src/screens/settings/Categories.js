@@ -5,7 +5,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Alert,
   Modal,
   Switch,
 } from 'react-native';
@@ -14,6 +13,7 @@ import Header from '../../components/layout/Header';
 import CardContainer from '../../components/ui/CardContainer';
 import MaggiButton from '../../components/ui/MaggiButton';
 import MaggiInput from '../../components/ui/MaggiInput';
+import MaggiAlert from '../../components/ui/MaggiAlert';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -73,6 +73,8 @@ const Categories = () => {
   const [newCategoryName, setNewCategoryName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('◈');
   const [nameError, setNameError] = useState('');
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'warning', buttons: null });
+  const closeAlert = () => setAlertConfig(c => ({ ...c, visible: false }));
 
   const handleToggle = (id) => {
     setCategories((prev) =>
@@ -83,21 +85,23 @@ const Categories = () => {
   };
 
   const handleDelete = (id) => {
-    Alert.alert(
-      'Eliminar categoría',
-      '¿Estás seguro? Esta acción no se puede deshacer.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
+    setAlertConfig({
+      visible: true,
+      title: 'Eliminar categoría',
+      message: '¿Estás seguro? Esta acción no se puede deshacer.',
+      type: 'warning',
+      buttons: [
+        { text: 'Cancelar', style: 'cancel', onPress: closeAlert },
         {
           text: 'Eliminar',
           style: 'destructive',
-          onPress: () =>
-            setCategories((prev) =>
-              prev.filter((cat) => cat.id !== id)
-            ),
+          onPress: () => {
+            closeAlert();
+            setCategories((prev) => prev.filter((cat) => cat.id !== id));
+          },
         },
-      ]
-    );
+      ],
+    });
   };
 
   const handleAddCategory = () => {
@@ -128,18 +132,16 @@ const Categories = () => {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Cerrar sesión',
-      '¿Estás seguro que quieres salir?',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Salir',
-          style: 'destructive',
-          onPress: logout,
-        },
-      ]
-    );
+    setAlertConfig({
+      visible: true,
+      title: 'Cerrar sesión',
+      message: '¿Estás seguro que quieres salir?',
+      type: 'warning',
+      buttons: [
+        { text: 'Cancelar', style: 'cancel', onPress: closeAlert },
+        { text: 'Salir', style: 'destructive', onPress: () => { closeAlert(); logout(); } },
+      ],
+    });
   };
 
   const activeCount = categories.filter((c) => c.active).length;
@@ -236,6 +238,15 @@ const Categories = () => {
             onDelete={handleDelete}
           />
         )}
+      />
+
+      <MaggiAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={closeAlert}
+        buttons={alertConfig.buttons}
       />
 
       {/* Add Category Modal */}

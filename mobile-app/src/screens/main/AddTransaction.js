@@ -7,12 +7,10 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-  Modal,        
 } from 'react-native';
 import MaggiInput from '../../components/ui/MaggiInput';
 import MaggiButton from '../../components/ui/MaggiButton';
-import CardContainer from '../../components/ui/CardContainer';
+import MaggiAlert from '../../components/ui/MaggiAlert';
 import useExpenses from '../../hooks/useExpenses';
 import useAccounts from '../../hooks/useAccounts';
 import { colors } from '../../theme/colors';
@@ -43,7 +41,13 @@ const AddTransaction = ({ onClose }) => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'success' });
+
+  const showAlert = (title, message, type = 'success') => {
+    setAlertConfig({ title, message, type });
+    setAlertVisible(true);
+  };
 
   const validate = () => {
     const newErrors = {};
@@ -58,24 +62,24 @@ const AddTransaction = ({ onClose }) => {
   };
 
   const handleSubmit = async () => {
-  if (!validate()) return;
-  try {
-    setLoading(true);
-    await addExpense({
-      title,
-      amount: parseFloat(amount),
-      category: selectedCategory,
-      accountId: selectedAccount,
-      notes,
-      date: new Date().toISOString(),
-    });
-    setShowSuccess(true); // ← this shows the modal
-  } catch (err) {
-    Alert.alert('Error', err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    if (!validate()) return;
+    try {
+      setLoading(true);
+      await addExpense({
+        title,
+        amount: parseFloat(amount),
+        category: selectedCategory,
+        accountId: selectedAccount,
+        notes,
+        date: new Date().toISOString(),
+      });
+      showAlert('¡Listo!', 'Gasto agregado correctamente.', 'success');
+    } catch (err) {
+      showAlert('Error', err.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -209,31 +213,16 @@ const AddTransaction = ({ onClose }) => {
           />
         </ScrollView>
       </View>
-      {/* Success Modal */}
-<Modal
-  visible={showSuccess}
-  animationType="fade"
-  transparent={true}
-  onRequestClose={() => setShowSuccess(false)}
->
-  <View style={successStyles.overlay}>
-    <View style={successStyles.modal}>
-      <Text style={successStyles.icon}>✓</Text>
-      <Text style={successStyles.title}>¡Listo!</Text>
-      <Text style={successStyles.message}>Gasto agregado correctamente.</Text>
-      <MaggiButton
-        title="OK"
-        variant="primary"
-        size="sm"
-        onPress={() => {
-          setShowSuccess(false);
-          onClose();
+      <MaggiAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={() => {
+          setAlertVisible(false);
+          if (alertConfig.type === 'success') onClose();
         }}
-        style={successStyles.button}
       />
-    </View>
-  </View>
-</Modal>
     </KeyboardAvoidingView>
   );
 };
@@ -376,42 +365,5 @@ const styles = StyleSheet.create({
   },
 });
 
-const successStyles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: colors.overlay,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  modal: {
-    backgroundColor: colors.backgroundSecondary,
-    borderRadius: 20,
-    padding: 32,
-    width: '100%',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-  },
-  icon: {
-    fontSize: 40,
-    color: colors.success,
-    marginBottom: 12,
-  },
-  title: {
-    ...typography.styles.h2,
-    color: colors.textPrimary,
-    marginBottom: 8,
-  },
-  message: {
-    ...typography.styles.bodySmall,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  button: {
-    minWidth: 120,
-  },
-});
 
 export default AddTransaction;

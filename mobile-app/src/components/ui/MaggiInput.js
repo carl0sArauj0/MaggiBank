@@ -58,9 +58,10 @@ const MaggiInput = ({
             icon && styles.inputWithLeftIcon,
             (rightIcon || secureTextEntry) && styles.inputWithRightIcon,
             multiline && styles.multilineInput,
+            { color: '#F5F5F7' },
           ]}
           placeholder={placeholder}
-          placeholderTextColor={colors.accent}
+          placeholderTextColor="#8E8E93"
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !isPasswordVisible}
@@ -71,8 +72,7 @@ const MaggiInput = ({
           multiline={multiline}
           numberOfLines={multiline ? numberOfLines : 1}
           editable={editable}
-          selectionColor={colors.light}
-          color={colors.textPrimary}
+          selectionColor="#F5F5F7"
         />
 
         {/* Right icon or password toggle */}
@@ -138,12 +138,14 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   input: {
-  flex: 1,
-  ...typography.styles.body,
-  color: colors.textPrimary,  // ← make sure this is #F5F5F7
-  paddingHorizontal: 16,
-  paddingVertical: 14,
-},
+    flex: 1,
+    fontFamily: 'Inter-Regular',
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#F5F5F7',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+  },
   inputWithLeftIcon: {
     paddingLeft: 8,
   },

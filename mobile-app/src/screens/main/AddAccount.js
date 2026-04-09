@@ -7,10 +7,10 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from 'react-native';
 import MaggiInput from '../../components/ui/MaggiInput';
 import MaggiButton from '../../components/ui/MaggiButton';
+import MaggiAlert from '../../components/ui/MaggiAlert';
 import useAccounts from '../../hooks/useAccounts';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -34,6 +34,13 @@ const AddAccount = ({ onClose }) => {
   const [selectedCurrency, setSelectedCurrency] = useState('COP');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'success' });
+
+  const showAlert = (title, message, type = 'success') => {
+    setAlertConfig({ title, message, type });
+    setAlertVisible(true);
+  };
 
   const validate = () => {
     const newErrors = {};
@@ -54,12 +61,14 @@ const AddAccount = ({ onClose }) => {
         balance: parseFloat(balance),
         type: selectedType,
         currency: selectedCurrency,
-        color: '#1A1A1B',
       });
-      Alert.alert('¡Listo!', 'Cuenta creada correctamente.');
-      onClose();
+      showAlert('¡Listo!', 'Cuenta creada correctamente.', 'success');
     } catch (err) {
-      Alert.alert('Error', err.message);
+      if (err.message.includes('duplicate key') || err.message.includes('unique constraint')) {
+        showAlert('Cuenta duplicada', 'Ya tienes una cuenta con ese nombre y tipo. Por favor usa un nombre o tipo diferente.', 'error');
+      } else {
+        showAlert('Error', err.message, 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -175,6 +184,16 @@ const AddAccount = ({ onClose }) => {
           />
         </ScrollView>
       </View>
+      <MaggiAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={() => {
+          setAlertVisible(false);
+          if (alertConfig.type === 'success') onClose();
+        }}
+      />
     </KeyboardAvoidingView>
   );
 };

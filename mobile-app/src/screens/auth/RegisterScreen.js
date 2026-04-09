@@ -7,11 +7,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from 'react-native';
 import ScreenWrapper from '../../components/layout/ScreenWrapper';
 import MaggiInput from '../../components/ui/MaggiInput';
 import MaggiButton from '../../components/ui/MaggiButton';
+import MaggiAlert from '../../components/ui/MaggiAlert';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -23,6 +23,8 @@ const RegisterScreen = ({ navigation }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'error', buttons: null });
+  const closeAlert = () => setAlertConfig(c => ({ ...c, visible: false }));
 
   const validate = () => {
     const newErrors = {};
@@ -44,13 +46,15 @@ const RegisterScreen = ({ navigation }) => {
     try {
       setLoading(true);
       await register(email, password);
-      Alert.alert(
-        '¡Cuenta creada!',
-        'Revisa tu correo para confirmar tu cuenta.',
-        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
-      );
+      setAlertConfig({
+        visible: true,
+        title: '¡Cuenta creada!',
+        message: 'Revisa tu correo para confirmar tu cuenta.',
+        type: 'success',
+        buttons: [{ text: 'OK', onPress: () => { closeAlert(); navigation.navigate('Login'); } }],
+      });
     } catch (err) {
-      Alert.alert('Error', err.message);
+      setAlertConfig({ visible: true, title: 'Error', message: err.message, type: 'error', buttons: null });
     } finally {
       setLoading(false);
     }
@@ -129,6 +133,14 @@ const RegisterScreen = ({ navigation }) => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <MaggiAlert
+        visible={alertConfig.visible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        onClose={closeAlert}
+        buttons={alertConfig.buttons}
+      />
     </ScreenWrapper>
   );
 };
