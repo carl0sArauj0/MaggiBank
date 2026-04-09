@@ -30,9 +30,10 @@ export const addAccount = async (account) => {
     .insert([
       {
         name: account.name,
+        pocket_name: account.pocket_name || account.type || account.name,
         balance: account.balance,
         type: account.type,
-        currency: account.currency || 'USD',
+        currency: account.currency || 'COP',
         color: account.color || '#1A1A1B',
       },
     ])

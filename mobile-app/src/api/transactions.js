@@ -5,7 +5,7 @@ export const getTransactions = async () => {
   const { data, error } = await supabase
     .from('expenses')
     .select('*')
-    .order('created_at', { ascending: false });
+    .order('date', { ascending: false });
 
   if (error) throw error;
 
@@ -23,7 +23,7 @@ export const getTransactionsByAccount = async (accountId) => {
     .from('expenses')
     .select('*')
     .eq('account_id', accountId)
-    .order('created_at', { ascending: false });
+    .order('date', { ascending: false });
 
   if (error) throw error;
   return data;
@@ -39,7 +39,6 @@ export const addTransaction = async (transaction) => {
         amount: transaction.amount,
         category_name: transaction.category,   // was: category
         account_id: transaction.accountId,
-        notes: transaction.notes || null,
         date: transaction.date || new Date().toISOString(),
       },
     ])
