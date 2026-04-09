@@ -22,6 +22,7 @@ import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { addBalanceToAccount, deleteAccount } from '../../api/accounts';
 import { supabase } from '../../api/supabaseClient';
+import { formatCurrency } from '../../utils/formatters';
 
 const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   const { expenses, fetchExpenses } = useExpenses();
@@ -37,7 +38,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
     if (!clean) return '';
     const number = parseInt(clean);
     if (isNaN(number)) return '';
-    return number.toLocaleString('es-CO');
+    return formatCurrency(number);
   };
 
   const accountExpenses = expenses
@@ -105,7 +106,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
       }]);
 
     await fetchExpenses();
-    setSuccessMessage(`Se agregaron $${parseInt(addAmount).toLocaleString('es-CO')} a ${account.name}`);
+    setSuccessMessage(`Se agregaron ${formatCurrency(parseInt(addAmount))} a ${account.name}`);
     setShowUpdateModal(false);
     setAddAmount('');
     setShowSuccessModal(true);  // ← only this, NO Alert.alert
@@ -145,9 +146,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
           <CardContainer variant="dark" style={styles.balanceCard}>
             <Text style={styles.balanceLabel}>BALANCE ACTUAL</Text>
             <Text style={styles.balanceAmount}>
-              ${account.balance?.toLocaleString('es-CO', {
-                minimumFractionDigits: 2,
-              })}
+              {formatCurrency(account.balance)}
             </Text>
           </CardContainer>
 
@@ -195,7 +194,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
                       </Text>
                     </View>
                     <Text style={styles.expenseAmount}>
-                      -${expense.amount?.toLocaleString('es-CO')}
+                      -{formatCurrency(expense.amount)}
                     </Text>
                   </View>
                 </CardContainer>
@@ -217,13 +216,13 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
             <View style={styles.updateModal}>
               <Text style={styles.updateTitle}>Agregar dinero</Text>
               <Text style={styles.updateSubtitle}>
-                Balance actual: ${account.balance?.toLocaleString('es-CO')}
+                Balance actual: {formatCurrency(account.balance)}
               </Text>
               <View style={styles.updateInputRow}>
                 <Text style={styles.updateCurrency}>$</Text>
                  <MaggiInput
     placeholder="0"
-    value={addAmount ? parseInt(addAmount).toLocaleString('es-CO') : ''}
+    value={addAmount ? formatCurrency(parseInt(addAmount)) : ''}
     onChangeText={(text) => {
       const clean = text.replace(/\./g, '').replace(/[^0-9]/g, '');
       setAddAmount(clean);
@@ -317,9 +316,7 @@ const AccountsScreen = () => {
           <CardContainer variant="transparent" style={styles.totalCard}>
             <Text style={styles.totalLabel}>PATRIMONIO TOTAL</Text>
             <Text style={styles.totalAmount}>
-              ${totalPatrimonio?.toLocaleString('es-CO', {
-                minimumFractionDigits: 2,
-              })}
+              {formatCurrency(totalPatrimonio)}
             </Text>
             <Text style={styles.totalSub}>
               {accounts.length} cuenta{accounts.length !== 1 ? 's' : ''}
@@ -354,9 +351,7 @@ const AccountsScreen = () => {
                 </Text>
               </View>
               <Text style={styles.accountCardBalance}>
-                ${item.balance?.toLocaleString('es-CO', {
-                  minimumFractionDigits: 2,
-                })}
+                {formatCurrency(item.balance)}
               </Text>
               <Text style={styles.accountCardName}>{item.name}</Text>
               <View style={styles.accountCardDots}>

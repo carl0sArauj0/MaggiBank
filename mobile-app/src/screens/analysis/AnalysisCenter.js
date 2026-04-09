@@ -24,6 +24,7 @@ import {
 } from '../../api/analyticsApi';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { formatCurrency } from '../../utils/formatters';
 
 const PERIODS = ['Semanal', 'Mensual', 'Anual'];
 
@@ -52,7 +53,7 @@ const AnomalyCard = ({ anomaly }) => (
       </View>
       <View style={styles.anomalyBadge}>
         <Text style={styles.anomalyAmount}>
-          +${anomaly.excess?.toLocaleString('es-CO')}
+          +{formatCurrency(anomaly.excess)}
         </Text>
       </View>
     </View>

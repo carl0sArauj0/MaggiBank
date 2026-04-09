@@ -16,6 +16,7 @@ import MaggiButton from '../../components/ui/MaggiButton';
 import useExpenses from '../../hooks/useExpenses';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { formatCurrency } from '../../utils/formatters';
 import AddTransaction from './AddTransaction';
 
 const CATEGORY_ICONS = {
@@ -74,7 +75,7 @@ const ExpenseItem = ({ expense, onDelete }) => {
             </Text>
           </View>
           <Text style={styles.expenseAmount}>
-            -${expense.amount?.toLocaleString('es-CO')}
+            -{formatCurrency(expense.amount)}
           </Text>
         </View>
       </CardContainer>
@@ -110,9 +111,7 @@ const ExpensesList = () => {
         <CardContainer variant="transparent" style={styles.totalCard}>
           <Text style={styles.totalLabel}>TOTAL GASTOS</Text>
           <Text style={styles.totalAmount}>
-            ${totalExpenses?.toLocaleString('es-CO', {
-              minimumFractionDigits: 2,
-            })}
+            {formatCurrency(totalExpenses)}
           </Text>
         </CardContainer>
 

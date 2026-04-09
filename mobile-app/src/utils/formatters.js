@@ -7,7 +7,7 @@ export const formatCurrency = (amount, currency = 'COP') => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
-};
+};  
 
 // Short currency (1.2M, 450K)
 export const formatCurrencyShort = (amount) => {

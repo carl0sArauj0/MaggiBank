@@ -16,6 +16,7 @@ import useAccounts from '../../hooks/useAccounts';
 import useExpenses from '../../hooks/useExpenses';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { formatCurrency } from '../../utils/formatters';
 import { useState } from 'react';
 import { Modal } from 'react-native';
 import AddAccount from './AddAccount';
@@ -36,10 +37,7 @@ const MaggiCard = ({ account, onPress }) => (
       </Text>
     </View>
     <Text style={styles.maggiCardBalance}>
-      ${account.balance?.toLocaleString('es-CO', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}
+      {formatCurrency(account.balance)}
     </Text>
     <Text style={styles.maggiCardName}>{account.name}</Text>
     <View style={styles.maggiCardDots}>
@@ -96,10 +94,7 @@ const Dashboard = ({ navigation }) => {
         <CardContainer variant="transparent" style={styles.patrimonioCard}>
           <Text style={styles.patrimonioLabel}>PATRIMONIO TOTAL</Text>
           <Text style={styles.patrimonioAmount}>
-            ${totalPatrimonio?.toLocaleString('es-CO', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {formatCurrency(totalPatrimonio)}
           </Text>
           <Text style={styles.patrimonioSub}>
             {accounts.length} cuenta{accounts.length !== 1 ? 's' : ''}
@@ -150,17 +145,13 @@ const Dashboard = ({ navigation }) => {
           <CardContainer variant="secondary" style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>GASTOS</Text>
             <Text style={styles.summaryAmount}>
-              ${totalExpenses?.toLocaleString('es-CO', {
-                minimumFractionDigits: 2,
-              })}
+              {formatCurrency(totalExpenses)}
             </Text>
           </CardContainer>
           <CardContainer variant="secondary" style={styles.summaryCard}>
             <Text style={styles.summaryLabel}>AHORROS</Text>
             <Text style={[styles.summaryAmount, { color: colors.success }]}>
-              ${(totalPatrimonio - totalExpenses)?.toLocaleString('es-CO', {
-                minimumFractionDigits: 2,
-              })}
+              {formatCurrency(totalPatrimonio - totalExpenses)}
             </Text>
           </CardContainer>
         </View>
@@ -199,7 +190,7 @@ const Dashboard = ({ navigation }) => {
                     </Text>
                   </View>
                   <Text style={styles.expenseAmount}>
-                    -${expense.amount?.toLocaleString('es-CO')}
+                    -{formatCurrency(expense.amount)}
                   </Text>
                 </View>
               </CardContainer>

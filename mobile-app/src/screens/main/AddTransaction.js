@@ -17,6 +17,7 @@ import useExpenses from '../../hooks/useExpenses';
 import useAccounts from '../../hooks/useAccounts';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
+import { formatCurrency } from '../../utils/formatters';
 
 
 
@@ -57,25 +58,24 @@ const AddTransaction = ({ onClose }) => {
   };
 
   const handleSubmit = async () => {
-    if (!validate()) return;
-    try {
-      setLoading(true);
-      await addExpense({
-        title,
-        amount: parseFloat(amount),
-        category: selectedCategory,
-        accountId: selectedAccount,
-        notes,
-        date: new Date().toISOString(),
-      });
-      setShowSuccess(true);
-      onClose();
-    } catch (err) {
-      Alert.alert('Error', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!validate()) return;
+  try {
+    setLoading(true);
+    await addExpense({
+      title,
+      amount: parseFloat(amount),
+      category: selectedCategory,
+      accountId: selectedAccount,
+      notes,
+      date: new Date().toISOString(),
+    });
+    setShowSuccess(true); // ← this shows the modal
+  } catch (err) {
+    Alert.alert('Error', err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <KeyboardAvoidingView
@@ -180,7 +180,7 @@ const AddTransaction = ({ onClose }) => {
                     {account.name}
                   </Text>
                   <Text style={styles.accountBalance}>
-                    ${account.balance?.toLocaleString('es-CO')}
+                    {formatCurrency(account.balance)}
                   </Text>
                 </TouchableOpacity>
               ))}
