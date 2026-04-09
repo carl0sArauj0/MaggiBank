@@ -80,12 +80,13 @@ const ExpensesList = () => {
     : expenses.filter((e) => e.category === selectedCategory);
 
   const handleDelete = async (id) => {
-    try {
-      await removeExpense(id);
-    } catch (err) {
-      setAlertConfig({ visible: true, title: 'Error', message: err.message, type: 'error', buttons: null });
-    }
-  };
+  try {
+    await removeExpense(id);
+    await fetchExpenses();
+  } catch (err) {
+    Alert.alert('Error', err.message);
+  }
+};
 
   const handleRequestDelete = (id) => {
     setAlertConfig({
