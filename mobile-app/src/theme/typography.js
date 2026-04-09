@@ -5,15 +5,15 @@ export const typography = {
 
   // Font sizes
   sizes: {
-    xs: 11,
-    sm: 13,
-    md: 15,
-    lg: 17,
-    xl: 20,
-    xxl: 24,
-    xxxl: 32,
-    display: 40,
-  },
+  xs: 10,
+  sm: 11,
+  md: 13,
+  lg: 15,
+  xl: 18,
+  xxl: 22,
+  xxxl: 28,
+  display: 36,
+},
 
   // Line heights
   lineHeights: {
@@ -33,53 +33,53 @@ export const typography = {
 
   // Predefined text styles
   styles: {
-    displayTitle: {
-      fontFamily: 'Montserrat-Bold',
-      fontSize: 40,
-      letterSpacing: -0.5,
-      color: '#F5F5F7',
-    },
-    h1: {
-      fontFamily: 'Montserrat-Bold',
-      fontSize: 32,
-      letterSpacing: -0.5,
-      color: '#F5F5F7',
-    },
-    h2: {
-      fontFamily: 'Montserrat-Bold',
-      fontSize: 24,
-      letterSpacing: -0.3,
-      color: '#F5F5F7',
-    },
-    h3: {
-      fontFamily: 'Montserrat-Bold',
-      fontSize: 20,
-      letterSpacing: -0.3,
-      color: '#F5F5F7',
-    },
-    body: {
-      fontFamily: 'Inter-Regular',
-      fontSize: 15,
-      lineHeight: 22,
-      color: '#F5F5F7',
-    },
-    bodySmall: {
-      fontFamily: 'Inter-Regular',
-      fontSize: 13,
-      lineHeight: 18,
-      color: '#8E8E93',
-    },
-    caption: {
-      fontFamily: 'Inter-Regular',
-      fontSize: 11,
-      lineHeight: 14,
-      color: '#8E8E93',
-    },
-    label: {
-      fontFamily: 'Montserrat-Bold',
-      fontSize: 13,
-      letterSpacing: 1,
-      color: '#8E8E93',
-    },
+  displayTitle: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 36,
+    letterSpacing: -0.5,
+    color: '#F5F5F7',
   },
+  h1: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 28,
+    letterSpacing: -0.5,
+    color: '#F5F5F7',
+  },
+  h2: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 22,
+    letterSpacing: -0.3,
+    color: '#F5F5F7',
+  },
+  h3: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 18,
+    letterSpacing: -0.3,
+    color: '#F5F5F7',
+  },
+  body: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 13,
+    lineHeight: 20,
+    color: '#F5F5F7',
+  },
+  bodySmall: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 11,
+    lineHeight: 16,
+    color: '#8E8E93',
+  },
+  caption: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 10,
+    lineHeight: 13,
+    color: '#8E8E93',
+  },
+  label: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 11,
+    letterSpacing: 1,
+    color: '#8E8E93',
+  },
+},
 };

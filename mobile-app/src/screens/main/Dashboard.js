@@ -109,11 +109,11 @@ const Dashboard = ({ navigation }) => {
         {/* MaggiCards */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Mis Cuentas</Text>
-            <TouchableOpacity onPress={() => setShowAddAccount(true)}>
-  <Text style={styles.sectionAction}>+ Agregar</Text>
-</TouchableOpacity>
-          </View>
+  <Text style={styles.sectionTitle}>Mis Cuentas</Text>
+  <TouchableOpacity onPress={() => navigation.navigate('Accounts')}>
+    <Text style={styles.sectionAction}>Ver todas</Text>
+  </TouchableOpacity>
+</View>
 
           {accounts.length === 0 ? (
             <CardContainer variant="secondary" style={styles.emptyCard}>

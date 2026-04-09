@@ -4,9 +4,9 @@ import { View, Text, StyleSheet } from 'react-native';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 
-// Screens
 import Dashboard from '../screens/main/Dashboard';
 import ExpensesList from '../screens/main/ExpensesList';
+import AccountsScreen from '../screens/main/AccountsScreen';
 import AnalysisCenter from '../screens/analysis/AnalysisCenter';
 import Categories from '../screens/settings/Categories';
 
@@ -57,6 +57,15 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="Accounts"
+        component={AccountsScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="▣" label="Cuentas" focused={focused} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Analysis"
         component={AnalysisCenter}
         options={{
@@ -80,27 +89,28 @@ const TabNavigator = () => {
 
 const styles = StyleSheet.create({
   tabBar: {
-  backgroundColor: colors.backgroundSecondary,
-  borderTopWidth: 1,
-  borderTopColor: colors.border,
-  height: 60,
-  paddingBottom: 6,
-  paddingTop: 6,
-},
+    backgroundColor: colors.backgroundSecondary,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    height: 65,
+    paddingBottom: 8,
+    paddingTop: 6,
+  },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    gap: 2,
   },
   tabIcon: {
-    fontSize: 20,
+    fontSize: 18,
     color: colors.light,
   },
   tabLabel: {
-  ...typography.styles.caption,
-  letterSpacing: 0,
-  fontSize: 7,
-},
+    letterSpacing: 0,
+    fontSize: 9,
+    fontFamily: typography.body,
+  },
 });
 
 export default TabNavigator;
+
