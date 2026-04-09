@@ -219,13 +219,16 @@ const Dashboard = ({ navigation }) => {
       </ScrollView>
 
       <Modal
-        visible={showAddAccount}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowAddAccount(false)}
-      >
-        <AddAccount onClose={() => setShowAddAccount(false)} />
-      </Modal>
+  visible={showAddAccount}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={() => setShowAddAccount(false)}
+>
+  <AddAccount onClose={() => {
+    setShowAddAccount(false);
+    onRefresh();
+  }} />
+</Modal>
 
     </ScreenWrapper>
   );
