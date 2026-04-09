@@ -7,6 +7,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from './src/context/AuthContext';
 import AppNavigator from './src/navigation/AppNavigator';
 import { colors } from './src/theme/colors';
+import { CategoriesProvider } from './src/context/CategoriesContext';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -62,12 +63,14 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <SafeAreaProvider>
-        <AuthProvider>
-          <AppNavigator />
-        </AuthProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+  <SafeAreaProvider>
+    <AuthProvider>
+      <CategoriesProvider>
+        <AppNavigator />
+      </CategoriesProvider>
+    </AuthProvider>
+  </SafeAreaProvider>
+</GestureHandlerRootView>
   );
 }
 

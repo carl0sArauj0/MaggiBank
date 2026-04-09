@@ -17,17 +17,7 @@ import MaggiAlert from '../../components/ui/MaggiAlert';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
-
-const DEFAULT_CATEGORIES = [
-  { id: '1', label: 'Comida', icon: '🍔', active: true, isDefault: true },
-  { id: '2', label: 'Transporte', icon: '🚗', active: true, isDefault: true },
-  { id: '3', label: 'Arriendo', icon: '🏠', active: true, isDefault: true },
-  { id: '4', label: 'Salud', icon: '💊', active: true, isDefault: true },
-  { id: '5', label: 'Entretenimiento', icon: '🎬', active: true, isDefault: true },
-  { id: '6', label: 'Ropa', icon: '👕', active: true, isDefault: true },
-  { id: '7', label: 'Educación', icon: '📚', active: true, isDefault: true },
-  { id: '8', label: 'Otros', icon: '◈', active: true, isDefault: true },
-];
+import { useCategories } from '../../context/CategoriesContext';
 
 const ICON_OPTIONS = [
   '🍔', '🚗', '🏠', '💊', '🎬', '👕', '📚', '✈️',
@@ -68,7 +58,7 @@ const CategoryItem = ({ category, onToggle, onDelete }) => (
 
 const Categories = () => {
   const { user, logout } = useAuth();
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const { categories, addCategory, toggleCategory, deleteCategory } = useCategories();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('◈');
