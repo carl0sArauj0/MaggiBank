@@ -16,4 +16,4 @@ ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can manage their own accounts" 
 ON accounts FOR ALL 
-USING (auth.uid() = user_id);
+UNIQUE(user_id, name, type)
