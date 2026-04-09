@@ -24,7 +24,7 @@ import { addBalanceToAccount, deleteAccount } from '../../api/accounts';
 import { supabase } from '../../api/supabaseClient';
 
 const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
-  const { expenses } = useExpenses();
+  const { expenses, fetchExpenses } = useExpenses();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [addAmount, setAddAmount] = useState('');
   const [amountError, setAmountError] = useState('');
@@ -94,6 +94,12 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
         notes: 'Balance actualizado',
         date: new Date().toISOString(),
       }]);
+
+      await fetchExpenses(); 
+    Alert.alert('¡Listo!', `Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
+    setShowUpdateModal(false);
+    setAddAmount('');
+    onUpdated();
 
     Alert.alert('¡Listo!', `Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
     setShowUpdateModal(false);
