@@ -2,7 +2,8 @@
 CREATE TABLE public.accounts (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-  bank_name TEXT NOT NULL,
+  name TEXT NOT NULL,
+  type TEXT DEFAULT 'Ahorros',
   pocket_name TEXT NOT NULL,
   balance DECIMAL(15, 2) DEFAULT 0.00,
   currency TEXT DEFAULT 'COP',        
