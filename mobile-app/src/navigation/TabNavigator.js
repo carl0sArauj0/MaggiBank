@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, Text, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
 import { typography } from '../theme/typography';
 
@@ -12,18 +13,20 @@ import Categories from '../screens/settings/Categories';
 
 const Tab = createBottomTabNavigator();
 
-const TabIcon = ({ icon, label, focused }) => (
+const TabIcon = ({ name, label, focused }) => (
   <View style={styles.tabItem}>
-    <Text style={[
-      styles.tabIcon,
-      { opacity: focused ? 1 : 0.4 }
-    ]}>
-      {icon}
-    </Text>
-    <Text style={[
-      styles.tabLabel,
-      { color: focused ? colors.light : colors.accent }
-    ]}>
+    <Feather
+      name={name}
+      size={20}
+      color={focused ? colors.light : colors.accent}
+    />
+    <Text
+      style={[
+        styles.tabLabel,
+        { color: focused ? colors.light : colors.accent }
+      ]}
+      numberOfLines={1}
+    >
       {label}
     </Text>
   </View>
@@ -43,7 +46,7 @@ const TabNavigator = () => {
         component={Dashboard}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="◈" label="Inicio" focused={focused} />
+            <TabIcon name="home" label="Inicio" focused={focused} />
           ),
         }}
       />
@@ -52,7 +55,7 @@ const TabNavigator = () => {
         component={ExpensesList}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="≡" label="Gastos" focused={focused} />
+            <TabIcon name="dollar-sign" label="Gastos" focused={focused} />
           ),
         }}
       />
@@ -61,7 +64,7 @@ const TabNavigator = () => {
         component={AccountsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="▣" label="Cuentas" focused={focused} />
+            <TabIcon name="credit-card" label="Cuentas" focused={focused} />
           ),
         }}
       />
@@ -70,7 +73,7 @@ const TabNavigator = () => {
         component={AnalysisCenter}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="◎" label="Análisis" focused={focused} />
+            <TabIcon name="bar-chart-2" label="Análisis" focused={focused} />
           ),
         }}
       />
@@ -79,7 +82,7 @@ const TabNavigator = () => {
         component={Categories}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="⊙" label="Config" focused={focused} />
+            <TabIcon name="settings" label="Config" focused={focused} />
           ),
         }}
       />
@@ -97,18 +100,15 @@ const styles = StyleSheet.create({
     paddingTop: 6,
   },
   tabItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
-  },
-  tabIcon: {
-    fontSize: 18,
-    color: colors.light,
-  },
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 3,
+  minWidth: 60,
+},
   tabLabel: {
-    letterSpacing: 0,
     fontSize: 9,
     fontFamily: typography.body,
+    letterSpacing: 0,
   },
 });
 
