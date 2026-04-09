@@ -83,7 +83,7 @@ const ExpenseItem = ({ expense, onDelete }) => {
 };
 
 const ExpensesList = () => {
-  const { expenses, loading, totalExpenses, removeExpense } = useExpenses();
+  const { expenses, loading, totalExpenses, removeExpense, fetchExpenses } = useExpenses();
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
 
@@ -174,15 +174,18 @@ const ExpensesList = () => {
 
         {/* Add Transaction Modal */}
         <Modal
-          visible={showAddModal}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={() => setShowAddModal(false)}
-        >
-          <AddTransaction
-            onClose={() => setShowAddModal(false)}
-          />
-        </Modal>
+  visible={showAddModal}
+  animationType="slide"
+  transparent={true}
+  onRequestClose={() => setShowAddModal(false)}
+>
+  <AddTransaction
+    onClose={() => {
+      setShowAddModal(false);
+      fetchExpenses();
+    }}
+  />
+</Modal>
       </ScreenWrapper>
     </GestureHandlerRootView>
   );

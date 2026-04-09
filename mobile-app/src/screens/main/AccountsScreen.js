@@ -26,9 +26,19 @@ import { supabase } from '../../api/supabaseClient';
 const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   const { expenses, fetchExpenses } = useExpenses();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // ← ADD
+  const [successMessage, setSuccessMessage] = useState('');        // ← ADD
   const [addAmount, setAddAmount] = useState('');
   const [amountError, setAmountError] = useState('');
   const [loading, setLoading] = useState(false);
+
+ const formatInputAmount = (value) => {
+    const clean = value.replace(/\./g, '').replace(/,/g, '');
+    if (!clean) return '';
+    const number = parseInt(clean);
+    if (isNaN(number)) return '';
+    return number.toLocaleString('es-CO');
+  };
 
   const accountExpenses = expenses
     .filter((e) => e.account_id === account.id)
@@ -95,10 +105,11 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
         date: new Date().toISOString(),
       }]);
 
-      await fetchExpenses(); 
-    Alert.alert('¡Listo!', `Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
+      await fetchExpenses();
+    setSuccessMessage(`Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
     setShowUpdateModal(false);
     setAddAmount('');
+    setShowSuccessModal(true);
     onUpdated();
 
     Alert.alert('¡Listo!', `Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
@@ -216,15 +227,18 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
               </Text>
               <View style={styles.updateInputRow}>
                 <Text style={styles.updateCurrency}>$</Text>
-                <MaggiInput
-                  placeholder="0.00"
-                  value={addAmount}
-                  onChangeText={setAddAmount}
-                  keyboardType="decimal-pad"
-                  error={amountError}
-                  style={styles.updateInput}
-                />
-              </View>
+                 <MaggiInput
+    placeholder="0"
+    value={addAmount ? parseInt(addAmount).toLocaleString('es-CO') : ''}
+    onChangeText={(text) => {
+      const clean = text.replace(/\./g, '').replace(/[^0-9]/g, '');
+      setAddAmount(clean);
+    }}
+    keyboardType="numeric"
+    error={amountError}
+    style={styles.updateInput}
+  />
+</View>
               <View style={styles.updateButtons}>
                 <MaggiButton
                   title="Cancelar"
@@ -246,6 +260,27 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
                   style={styles.updateConfirmBtn}
                 />
               </View>
+            </View>
+          </View>
+        </Modal>
+        <Modal
+          visible={showSuccessModal}
+          animationType="fade"
+          transparent={true}
+          onRequestClose={() => setShowSuccessModal(false)}
+        >
+          <View style={styles.successOverlay}>
+            <View style={styles.successModal}>
+              <Text style={styles.successIcon}>✓</Text>
+              <Text style={styles.successTitle}>¡Listo!</Text>
+              <Text style={styles.successMessage}>{successMessage}</Text>
+              <MaggiButton
+                title="OK"
+                variant="primary"
+                size="sm"
+                onPress={() => setShowSuccessModal(false)}
+                style={styles.successButton}
+              />
             </View>
           </View>
         </Modal>
@@ -633,6 +668,41 @@ const styles = StyleSheet.create({
   updateConfirmBtn: {
     flex: 1,
   },
+  successOverlay: {
+  flex: 1,
+  backgroundColor: colors.overlay,
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 20,
+},
+successModal: {
+  backgroundColor: colors.backgroundSecondary,
+  borderRadius: 20,
+  padding: 32,
+  width: '100%',
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: colors.borderLight,
+},
+successIcon: {
+  fontSize: 40,
+  color: colors.success,
+  marginBottom: 12,
+},
+successTitle: {
+  ...typography.styles.h2,
+  color: colors.textPrimary,
+  marginBottom: 8,
+},
+successMessage: {
+  ...typography.styles.bodySmall,
+  color: colors.textSecondary,
+  textAlign: 'center',
+  marginBottom: 24,
+},
+successButton: {
+  minWidth: 120,
+},
 });
 
 export default AccountsScreen;
