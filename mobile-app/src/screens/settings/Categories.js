@@ -66,13 +66,7 @@ const Categories = () => {
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'warning', buttons: null });
   const closeAlert = () => setAlertConfig(c => ({ ...c, visible: false }));
 
-  const handleToggle = (id) => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === id ? { ...cat, active: !cat.active } : cat
-      )
-    );
-  };
+const handleToggle = (id) => toggleCategory(id);
 
   const handleDelete = (id) => {
     setAlertConfig({
@@ -94,32 +88,29 @@ const Categories = () => {
     });
   };
 
-  const handleAddCategory = () => {
-    if (!newCategoryName.trim()) {
-      setNameError('El nombre es requerido');
-      return;
-    }
-    if (categories.find(
-      (c) => c.label.toLowerCase() === newCategoryName.toLowerCase()
-    )) {
-      setNameError('Esta categoría ya existe');
-      return;
-    }
-
-    const newCategory = {
-      id: Date.now().toString(),
-      label: newCategoryName.trim(),
-      icon: selectedIcon,
-      active: true,
-      isDefault: false,
-    };
-
-    setCategories((prev) => [...prev, newCategory]);
-    setNewCategoryName('');
-    setSelectedIcon('◈');
-    setNameError('');
-    setShowAddModal(false);
-  };
+const handleAddCategory = () => {
+  if (!newCategoryName.trim()) {
+    setNameError('El nombre es requerido');
+    return;
+  }
+  if (categories.find(
+    (c) => c.label.toLowerCase() === newCategoryName.toLowerCase()
+  )) {
+    setNameError('Esta categoría ya existe');
+    return;
+  }
+  addCategory({
+    id: Date.now().toString(),
+    label: newCategoryName.trim(),
+    icon: selectedIcon,
+    active: true,
+    isDefault: false,
+  });
+  setNewCategoryName('');
+  setSelectedIcon('◈');
+  setNameError('');
+  setShowAddModal(false);
+};
 
   const handleLogout = () => {
     setAlertConfig({
