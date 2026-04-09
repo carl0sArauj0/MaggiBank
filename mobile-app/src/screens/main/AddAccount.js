@@ -102,13 +102,16 @@ const AddAccount = ({ onClose }) => {
           <View style={styles.balanceContainer}>
             <Text style={styles.currencySymbol}>$</Text>
             <MaggiInput
-              placeholder="0.00"
-              value={balance}
-              onChangeText={setBalance}
-              keyboardType="decimal-pad"
-              error={errors.balance}
-              style={styles.balanceInput}
-            />
+  placeholder="0"
+  value={balance ? parseInt(balance).toLocaleString('es-CO') : ''}
+  onChangeText={(text) => {
+    const clean = text.replace(/\./g, '').replace(/[^0-9]/g, '');
+    setBalance(clean);
+  }}
+  keyboardType="numeric"
+  error={errors.balance}
+  style={styles.balanceInput}
+/>
           </View>
 
           {/* Account type */}

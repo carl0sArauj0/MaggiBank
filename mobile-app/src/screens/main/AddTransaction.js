@@ -107,13 +107,16 @@ const AddTransaction = ({ onClose }) => {
           <View style={styles.amountContainer}>
             <Text style={styles.currencySymbol}>$</Text>
             <MaggiInput
-              placeholder="0.00"
-              value={amount}
-              onChangeText={setAmount}
-              keyboardType="decimal-pad"
-              error={errors.amount}
-              style={styles.amountInput}
-            />
+  placeholder="0"
+  value={amount ? parseInt(amount).toLocaleString('es-CO') : ''}
+  onChangeText={(text) => {
+    const clean = text.replace(/\./g, '').replace(/[^0-9]/g, '');
+    setAmount(clean);
+  }}
+  keyboardType="numeric"
+  error={errors.amount}
+  style={styles.amountInput}
+/>
           </View>
 
           {/* Title input */}
