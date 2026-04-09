@@ -30,7 +30,6 @@ export const addAccount = async (account) => {
     .insert([
       {
         name: account.name,
-        pocket_name: account.pocket_name || account.type || account.name,
         balance: account.balance,
         type: account.type,
         currency: account.currency || 'COP',
