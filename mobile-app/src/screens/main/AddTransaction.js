@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Modal,        
 } from 'react-native';
 import MaggiInput from '../../components/ui/MaggiInput';
 import MaggiButton from '../../components/ui/MaggiButton';
@@ -18,7 +19,7 @@ import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 
 
-const [showSuccess, setShowSuccess] = useState(false);
+
 
 const CATEGORIES = [
   { label: 'Comida', icon: '🍔' },
@@ -41,6 +42,7 @@ const AddTransaction = ({ onClose }) => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const validate = () => {
     const newErrors = {};
