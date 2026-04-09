@@ -72,6 +72,7 @@ const MaggiInput = ({
           numberOfLines={multiline ? numberOfLines : 1}
           editable={editable}
           selectionColor={colors.light}
+          color={colors.textPrimary}
         />
 
         {/* Right icon or password toggle */}
@@ -137,12 +138,12 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   input: {
-    flex: 1,
-    ...typography.styles.body,
-    color: colors.textPrimary,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
+  flex: 1,
+  ...typography.styles.body,
+  color: colors.textPrimary,  // ← make sure this is #F5F5F7
+  paddingHorizontal: 16,
+  paddingVertical: 14,
+},
   inputWithLeftIcon: {
     paddingLeft: 8,
   },

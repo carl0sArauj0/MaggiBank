@@ -26,6 +26,7 @@ export const addAccount = async (account) => {
       name: account.name,
       balance: account.balance,
       type: account.type,
+      currency: account.currency,  // ← add back when partner adds column
     }])
     .select()
     .single();
