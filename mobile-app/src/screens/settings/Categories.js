@@ -81,7 +81,7 @@ const handleToggle = (id) => toggleCategory(id);
           style: 'destructive',
           onPress: () => {
             closeAlert();
-            setCategories((prev) => prev.filter((cat) => cat.id !== id));
+            deleteCategory(id);
           },
         },
       ],

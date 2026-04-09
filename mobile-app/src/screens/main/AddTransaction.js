@@ -13,27 +13,15 @@ import MaggiButton from '../../components/ui/MaggiButton';
 import MaggiAlert from '../../components/ui/MaggiAlert';
 import useExpenses from '../../hooks/useExpenses';
 import useAccounts from '../../hooks/useAccounts';
+import { useCategories } from '../../context/CategoriesContext';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { formatCurrency } from '../../utils/formatters';
 
-
-
-
-const CATEGORIES = [
-  { label: 'Comida', icon: '🍔' },
-  { label: 'Transporte', icon: '🚗' },
-  { label: 'Arriendo', icon: '🏠' },
-  { label: 'Salud', icon: '💊' },
-  { label: 'Entretenimiento', icon: '🎬' },
-  { label: 'Ropa', icon: '👕' },
-  { label: 'Educación', icon: '📚' },
-  { label: 'Otros', icon: '◈' },
-];
-
 const AddTransaction = ({ onClose }) => {
   const { addExpense } = useExpenses();
   const { accounts } = useAccounts();
+  const { activeCategories } = useCategories();
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
@@ -139,7 +127,7 @@ const AddTransaction = ({ onClose }) => {
               <Text style={styles.errorText}>{errors.category}</Text>
             )}
             <View style={styles.categoriesGrid}>
-              {CATEGORIES.map((cat) => (
+              {activeCategories.map((cat) => (
                 <TouchableOpacity
                   key={cat.label}
                   style={[
