@@ -14,23 +14,13 @@ import CardContainer from '../../components/ui/CardContainer';
 import MaggiButton from '../../components/ui/MaggiButton';
 import MaggiAlert from '../../components/ui/MaggiAlert';
 import useExpenses from '../../hooks/useExpenses';
+import { useCategories } from '../../context/CategoriesContext';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { formatCurrency } from '../../utils/formatters';
 import AddTransaction from './AddTransaction';
 
-const CATEGORY_ICONS = {
-  Comida: '🍔',
-  Transporte: '🚗',
-  Arriendo: '🏠',
-  Salud: '💊',
-  Entretenimiento: '🎬',
-  Ropa: '👕',
-  Educación: '📚',
-  Otros: '◈',
-};
-
-const ExpenseItem = ({ expense, onRequestDelete }) => {
+const ExpenseItem = ({ expense, onRequestDelete, categoryIconMap }) => {
   const renderRightActions = () => (
     <TouchableOpacity
       style={styles.deleteAction}
@@ -52,7 +42,7 @@ const ExpenseItem = ({ expense, onRequestDelete }) => {
         <View style={styles.expenseRow}>
           <View style={styles.expenseIcon}>
             <Text style={styles.expenseIconText}>
-              {CATEGORY_ICONS[expense.category] || '◈'}
+              {categoryIconMap[expense.category] || '◈'}
             </Text>
           </View>
           <View style={styles.expenseInfo}>
@@ -72,12 +62,18 @@ const ExpenseItem = ({ expense, onRequestDelete }) => {
 
 const ExpensesList = () => {
   const { expenses, loading, totalExpenses, removeExpense, fetchExpenses } = useExpenses();
+  const { activeCategories } = useCategories();
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'warning', buttons: null });
   const closeAlert = () => setAlertConfig(c => ({ ...c, visible: false }));
 
-  const categories = ['Todos', ...Object.keys(CATEGORY_ICONS)];
+  const categoryIconMap = activeCategories.reduce((map, cat) => {
+    map[cat.label] = cat.icon;
+    return map;
+  }, {});
+
+  const categories = ['Todos', ...activeCategories.map((cat) => cat.label)];
 
   const filteredExpenses = selectedCategory === 'Todos'
     ? expenses
@@ -160,6 +156,7 @@ const ExpensesList = () => {
             <ExpenseItem
               expense={item}
               onRequestDelete={handleRequestDelete}
+              categoryIconMap={categoryIconMap}
             />
           )}
         />
