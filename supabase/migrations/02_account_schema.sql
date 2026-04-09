@@ -5,6 +5,8 @@ CREATE TABLE public.accounts (
   bank_name TEXT NOT NULL,
   pocket_name TEXT NOT NULL,
   balance DECIMAL(15, 2) DEFAULT 0.00,
+  currency TEXT DEFAULT 'COP',        
+  color TEXT DEFAULT '#1A1A1B',      
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
   UNIQUE(user_id, bank_name, pocket_name)
 );
