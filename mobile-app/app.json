@@ -20,15 +20,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1A1A1B"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.maggibank"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-   "extra": {
-  "analyticsUrl": "http://192.168.1.5:8000"
-}
+    "extra": {
+      "analyticsUrl": "http://192.168.1.5:8000"
+    }
   }
 }
-
-
