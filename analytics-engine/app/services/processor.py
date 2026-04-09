@@ -38,3 +38,35 @@ class DataProcessor:
         df['balance'] = df['balance'].astype(float)
         
         return df
+    @staticmethod
+    def update_balance(account_id: str, amount: float, user_id: str):
+        """
+        Suma el monto al saldo actual. La lógica de 'solo sumar' 
+        se garantiza aquí en el backend.
+        """
+        # 1. Obtener saldo actual
+        res = supabase.table("accounts").select("balance").eq("id", account_id).eq("user_id", user_id).single().execute()
+        if not res.data:
+            return None
+            
+        current_balance = float(res.data['balance'])
+        new_balance = current_balance + abs(amount) # abs() asegura que siempre sea positivo
+        
+        # 2. Actualizar
+        update_res = supabase.table("accounts").update({"balance": new_balance}).eq("id", account_id).execute()
+        return update_res.data
+
+    @staticmethod
+    def delete_account(account_id: str, user_id: str):
+        """
+        Elimina la cuenta. Gracias al ON DELETE CASCADE en SQL, 
+        los gastos se borrarán solos.
+        """
+        res = supabase.table("accounts").delete().eq("id", account_id).eq("user_id", user_id).execute()
+        return res.data
+
+    @staticmethod
+    def get_expenses_by_account(account_id: str, user_id: str):
+        """Trae los gastos filtrados por cuenta."""
+        res = supabase.table("expenses").select("*").eq("account_id", account_id).eq("user_id", user_id).order("date", desc=True).execute()
+        return res.data

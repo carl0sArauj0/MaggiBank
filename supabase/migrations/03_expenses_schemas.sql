@@ -43,5 +43,9 @@ CREATE TRIGGER on_expense_deleted
 ALTER TABLE public.expenses ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can manage their own expenses" 
-ON expenses FOR ALL 
-USING (auth.uid() = user_id);
+ON public.expenses 
+FOR ALL 
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id); -- Añadir esta línea
+
+ALTER TABLE public.expenses ALTER COLUMN user_id SET DEFAULT auth.uid();
