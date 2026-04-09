@@ -21,6 +21,7 @@ import useExpenses from '../../hooks/useExpenses';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { addBalanceToAccount, deleteAccount } from '../../api/accounts';
+import { supabase } from '../../api/supabaseClient';
 
 const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   const { expenses } = useExpenses();
@@ -70,27 +71,40 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   };
 
   const handleAddBalance = async () => {
-    if (!addAmount || isNaN(parseFloat(addAmount))) {
-      setAmountError('Ingresa un monto válido');
-      return;
-    }
-    if (parseFloat(addAmount) <= 0) {
-      setAmountError('El monto debe ser mayor a 0');
-      return;
-    }
-    try {
-      setLoading(true);
-      await addBalanceToAccount(account.id, parseFloat(addAmount));
-      Alert.alert('¡Listo!', `Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
-      setShowUpdateModal(false);
-      setAddAmount('');
-      onUpdated();
-    } catch (err) {
-      Alert.alert('Error', err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!addAmount || isNaN(parseFloat(addAmount))) {
+    setAmountError('Ingresa un monto válido');
+    return;
+  }
+  if (parseFloat(addAmount) <= 0) {
+    setAmountError('El monto debe ser mayor a 0');
+    return;
+  }
+  try {
+    setLoading(true);
+    await addBalanceToAccount(account.id, parseFloat(addAmount));
+
+    // Register as a transaction so it appears in recent transactions
+    await supabase
+      .from('expenses')
+      .insert([{
+        description: 'Ingreso de dinero',
+        amount: parseFloat(addAmount),
+        category_name: 'Ingreso',
+        account_id: account.id,
+        notes: 'Balance actualizado',
+        date: new Date().toISOString(),
+      }]);
+
+    Alert.alert('¡Listo!', `Se agregaron $${parseFloat(addAmount).toLocaleString('es-CO')} a ${account.name}`);
+    setShowUpdateModal(false);
+    setAddAmount('');
+    onUpdated();
+  } catch (err) {
+    Alert.alert('Error', err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <View style={styles.detailOverlay}>
