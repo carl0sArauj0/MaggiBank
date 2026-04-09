@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from app.services.processor import DataProcessor
 from app.services.spending_trends import SpendingAnalytics
