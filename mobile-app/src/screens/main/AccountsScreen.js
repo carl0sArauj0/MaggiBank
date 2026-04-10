@@ -47,8 +47,8 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   };
 
   const accountExpenses = expenses
-    .filter((e) => e.account_id === account.id)
-    .slice(0, 5);
+  .filter((e) => e.account_id === account.id)
+  .slice(0, 5);
 
   const handleDelete = () => {
     showAlert(
@@ -105,21 +105,27 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
     setLoading(true);
     await addBalanceToAccount(account.id, parseFloat(addAmount));
 
-    await supabase
+    const { error } = await supabase
       .from('expenses')
       .insert([{
         description: 'Ingreso de dinero',
         amount: parseFloat(addAmount),
         category_name: 'Ingreso',
         account_id: account.id,
-        notes: 'Balance actualizado',
         date: new Date().toISOString(),
       }]);
+
+    if (error) throw error;
 
     await fetchExpenses();
     setShowUpdateModal(false);
     setAddAmount('');
-    showAlert('¡Listo!', `Se agregaron $${parseInt(addAmount).toLocaleString('es-CO')} a ${account.name}`, 'success');
+    setAmountError('');
+    showAlert(
+      '¡Listo!',
+      `Se agregaron $${parseInt(addAmount).toLocaleString('es-CO')} a ${account.name}`,
+      'success'
+    );
     onUpdated();
   } catch (err) {
     showAlert('Error', err.message, 'error');
