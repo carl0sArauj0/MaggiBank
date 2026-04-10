@@ -44,7 +44,7 @@ const AddAccount = ({ onClose }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!name) newErrors.name = 'El nombre es requerido';
+    if (!name.trim()) newErrors.name = 'El nombre es requerido';
     if (!balance) newErrors.balance = 'El balance es requerido';
     if (isNaN(parseFloat(balance))) newErrors.balance = 'Balance inválido';
     if (!selectedType) newErrors.type = 'Selecciona un tipo de cuenta';
@@ -57,15 +57,19 @@ const AddAccount = ({ onClose }) => {
     try {
       setLoading(true);
       await createAccount({
-        name,
+        name: name.trim(),
         balance: parseFloat(balance),
         type: selectedType,
         currency: selectedCurrency,
       });
       showAlert('¡Listo!', 'Cuenta creada correctamente.', 'success');
     } catch (err) {
-      if (err.message.includes('duplicate key') || err.message.includes('unique constraint')) {
-        showAlert('Cuenta duplicada', 'Ya tienes una cuenta con ese nombre y tipo. Por favor usa un nombre o tipo diferente.', 'error');
+      if (err.message.includes('duplicate key') || err.message.includes('unique constraint') || err.message.includes('Duplicate key value')) {
+        showAlert(
+          'Cuenta duplicada',
+          '¡Ups! Ya tienes una cuenta con ese nombre y tipo. Por favor intenta con uno diferente.',
+          'error'
+        );
       } else {
         showAlert('Error', err.message, 'error');
       }
