@@ -24,13 +24,17 @@ import { addBalanceToAccount, deleteAccount } from '../../api/accounts';
 import { supabase } from '../../api/supabaseClient';
 import { formatCurrency } from '../../utils/formatters';
 
-const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
+const AccountDetail = ({ account, onClose, onDeleted, onUpdated, onAccountUpdated }) => {
   const { expenses, fetchExpenses } = useExpenses();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'success', buttons: null });
   const [addAmount, setAddAmount] = useState('');
   const [currentBalance, setCurrentBalance] = useState(account.balance);
+
+  React.useEffect(() => {
+    setCurrentBalance(account.balance);
+  }, [account.balance]);
 
   const showAlert = (title, message, type = 'success', buttons = null) => {
     setAlertConfig({ title, message, type, buttons });
@@ -106,6 +110,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
     setLoading(true);
     const updatedAccount = await addBalanceToAccount(account.id, parseFloat(addAmount));
     setCurrentBalance(updatedAccount.balance);
+    onAccountUpdated(updatedAccount);
 
     const { error } = await supabase
       .from('expenses')
@@ -128,7 +133,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
       `Se agregaron $${parseInt(addAmount).toLocaleString('es-CO')} a ${account.name}`,
       'success'
     );
-    onUpdated();
+    await onUpdated();
   } catch (err) {
     showAlert('Error', err.message, 'error');
   } finally {
@@ -404,7 +409,11 @@ const AccountsScreen = () => {
               setSelectedAccount(null);
               fetchAccounts();
             }}
-            onUpdated={() => {
+            onUpdated={async () => {
+              await fetchAccounts();
+            }}
+            onAccountUpdated={(updatedAccount) => {
+              setSelectedAccount(updatedAccount);
               fetchAccounts();
             }}
           />
