@@ -20,7 +20,7 @@ import useAccounts from '../../hooks/useAccounts';
 import { getAllTransactionsByAccount } from '../../api/transactions';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
-import { addBalanceToAccount, deleteAccount } from '../../api/accounts';
+import { deleteAccount } from '../../api/accounts';
 import { supabase } from '../../api/supabaseClient';
 import { formatCurrency } from '../../utils/formatters';
 
@@ -109,48 +109,64 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated, onAccountUpdate
   };
 
   const handleAddBalance = async () => {
-  if (!addAmount || isNaN(parseFloat(addAmount))) {
-    setAmountError('Ingresa un monto válido');
-    return;
-  }
-  if (parseFloat(addAmount) <= 0) {
-    setAmountError('El monto debe ser mayor a 0');
-    return;
-  }
-  try {
-    setLoading(true);
-    const updatedAccount = await addBalanceToAccount(account.id, parseFloat(addAmount));
-    setCurrentBalance(updatedAccount.balance);
+    if (!addAmount || isNaN(parseFloat(addAmount))) {
+      setAmountError('Ingresa un monto válido');
+      return;
+    }
+    if (parseFloat(addAmount) <= 0) {
+      setAmountError('El monto debe ser mayor a 0');
+      return;
+    }
+    try {
+      setLoading(true);
 
-    const { error } = await supabase
-      .from('expenses')
-      .insert([{
-        description: 'Ingreso de dinero',
-        amount: parseFloat(addAmount),
-        category_name: 'Ingreso',
-        account_id: account.id,
-        date: new Date().toISOString(),
-      }]);
+      // Just insert the income transaction — backend trigger handles balance update
+      const { error } = await supabase
+        .from('expenses')
+        .insert([{
+          description: 'Ingreso de dinero',
+          amount: parseFloat(addAmount),
+          category_name: 'Ingreso',
+          account_id: account.id,
+          date: new Date().toISOString(),
+        }]);
 
-    if (error) throw error;
+      if (error) throw error;
 
-    await fetchAccountTransactions();
-    onAccountUpdated(updatedAccount);
-    setShowUpdateModal(false);
-    setAddAmount('');
-    setAmountError('');
-    showAlert(
-      '¡Listo!',
-      `Se agregaron $${parseInt(addAmount).toLocaleString('es-CO')} a ${account.name}`,
-      'success'
-    );
-    await onUpdated();
-  } catch (err) {
-    showAlert('Error', err.message, 'error');
-  } finally {
-    setLoading(false);
-  }
-};
+      // Wait briefly for the trigger to update the balance
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Fetch updated account data and transactions
+      await fetchAccountTransactions();
+      await onUpdated();
+
+      // Fetch the updated account balance from DB
+      const { data: updatedAccount, error: fetchError } = await supabase
+        .from('accounts')
+        .select('*')
+        .eq('id', account.id)
+        .single();
+
+      if (!fetchError && updatedAccount) {
+        setCurrentBalance(updatedAccount.balance);
+        onAccountUpdated(updatedAccount);
+      }
+
+      setShowUpdateModal(false);
+      setAddAmount('');
+      setAmountError('');
+      showAlert(
+        '¡Listo!',
+        `Se agregaron ${formatCurrency(parseFloat(addAmount))} a ${account.name}`,
+        'success'
+      );
+
+    } catch (err) {
+      showAlert('Error', err.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.detailOverlay}>
