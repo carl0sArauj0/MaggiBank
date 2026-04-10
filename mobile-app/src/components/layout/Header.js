@@ -197,7 +197,7 @@ const maggiStyles = StyleSheet.create({
   },
   photo: {
     width: '100%',
-    height: 450,
+    height: 480,
   },
   content: {
     padding: 24,
