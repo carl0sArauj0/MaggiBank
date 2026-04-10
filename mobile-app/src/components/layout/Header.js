@@ -30,13 +30,8 @@ const Header = ({
   };
 
   const openMaggi = () => {
+    scaleAnim.setValue(0);
     setShowMaggi(true);
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      tension: 50,
-      friction: 7,
-      useNativeDriver: true,
-    }).start();
   };
 
   const closeMaggi = () => {
@@ -44,7 +39,10 @@ const Header = ({
       toValue: 0,
       duration: 200,
       useNativeDriver: true,
-    }).start(() => setShowMaggi(false));
+    }).start(() => {
+      scaleAnim.setValue(0);
+      setShowMaggi(false);
+    });
   };
 
   return (
@@ -94,6 +92,15 @@ const Header = ({
         animationType="fade"
         transparent={true}
         onRequestClose={closeMaggi}
+        onShow={() => {
+          scaleAnim.setValue(0);
+          Animated.spring(scaleAnim, {
+            toValue: 1,
+            tension: 50,
+            friction: 7,
+            useNativeDriver: true,
+          }).start();
+        }}
       >
         <TouchableOpacity
           style={maggiStyles.overlay}
@@ -105,9 +112,11 @@ const Header = ({
             { transform: [{ scale: scaleAnim }] }
           ]}>
             <Image
+              key={showMaggi ? 'maggi-visible' : 'maggi-hidden'}
               source={require('../../../assets/branding/maggi_real.png')}
               style={maggiStyles.photo}
               resizeMode="cover"
+              onError={(e) => console.log('Image error:', e.nativeEvent.error)}
             />
             <View style={maggiStyles.content}>
               <Text style={maggiStyles.emoji}>🐾</Text>
