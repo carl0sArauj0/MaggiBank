@@ -163,8 +163,8 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   logo: {
-    width: 36,
-    height: 36,
+    width: 60,
+    height: 60,
   },
   actionButton: {
     paddingHorizontal: 12,
@@ -197,7 +197,7 @@ const maggiStyles = StyleSheet.create({
   },
   photo: {
     width: '100%',
-    height: 280,
+    height: 180,
   },
   content: {
     padding: 24,
