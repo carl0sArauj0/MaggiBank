@@ -13,7 +13,12 @@ const useExpenses = () => {
   const [totalExpenses, setTotalExpenses] = useState(0);
 
   const calculateTotal = (data) => {
-    const total = data.reduce((sum, item) => sum + item.amount, 0);
+    const total = data
+      .filter((item) =>
+        item.category_name !== 'Ingreso' &&
+        item.category !== 'Ingreso'
+      )
+      .reduce((sum, item) => sum + item.amount, 0);
     setTotalExpenses(total);
   };
 

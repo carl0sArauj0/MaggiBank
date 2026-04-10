@@ -17,7 +17,7 @@ import MaggiInput from '../../components/ui/MaggiInput';
 import MaggiAlert from '../../components/ui/MaggiAlert';
 import AddAccount from './AddAccount';
 import useAccounts from '../../hooks/useAccounts';
-import useExpenses from '../../hooks/useExpenses';
+import { getAllTransactionsByAccount } from '../../api/transactions';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { addBalanceToAccount, deleteAccount } from '../../api/accounts';
@@ -25,7 +25,7 @@ import { supabase } from '../../api/supabaseClient';
 import { formatCurrency } from '../../utils/formatters';
 
 const AccountDetail = ({ account, onClose, onDeleted, onUpdated, onAccountUpdated }) => {
-  const { expenses, fetchExpenses } = useExpenses();
+  const [accountTransactions, setAccountTransactions] = useState([]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'success', buttons: null });
@@ -35,6 +35,19 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated, onAccountUpdate
   React.useEffect(() => {
     setCurrentBalance(account.balance);
   }, [account.balance]);
+
+  const fetchAccountTransactions = async () => {
+    try {
+      const data = await getAllTransactionsByAccount(account.id);
+      setAccountTransactions(data);
+    } catch (err) {
+      console.log('Error fetching transactions:', err.message);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchAccountTransactions();
+  }, [account.id]);
 
   const showAlert = (title, message, type = 'success', buttons = null) => {
     setAlertConfig({ title, message, type, buttons });
@@ -51,9 +64,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated, onAccountUpdate
     return formatCurrency(number);
   };
 
-  const accountExpenses = expenses
-  .filter((e) => e.account_id === account.id)
-  .slice(0, 5);
+  const accountExpenses = accountTransactions.slice(0, 5);
 
   const handleDelete = () => {
     showAlert(
@@ -110,7 +121,6 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated, onAccountUpdate
     setLoading(true);
     const updatedAccount = await addBalanceToAccount(account.id, parseFloat(addAmount));
     setCurrentBalance(updatedAccount.balance);
-    onAccountUpdated(updatedAccount);
 
     const { error } = await supabase
       .from('expenses')
@@ -124,7 +134,8 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated, onAccountUpdate
 
     if (error) throw error;
 
-    await fetchExpenses();
+    await fetchAccountTransactions();
+    onAccountUpdated(updatedAccount);
     setShowUpdateModal(false);
     setAddAmount('');
     setAmountError('');
@@ -413,7 +424,7 @@ const AccountsScreen = () => {
               await fetchAccounts();
             }}
             onAccountUpdated={(updatedAccount) => {
-              setSelectedAccount(updatedAccount);
+              setSelectedAccount({ ...updatedAccount });
               fetchAccounts();
             }}
           />

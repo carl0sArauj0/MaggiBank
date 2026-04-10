@@ -1,15 +1,32 @@
 import { supabase } from './supabaseClient';
 
-// Get all transactions for the current user
+// Get all transactions for the current user (excludes income)
 export const getTransactions = async () => {
   const { data, error } = await supabase
     .from('expenses')
     .select('*')
-    .order('date', { ascending: false });
+    .neq('category_name', 'Ingreso')
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
 
-  // Map DB fields to frontend fields
+  return data.map((item) => ({
+    ...item,
+    title: item.description,
+    category: item.category_name,
+  }));
+};
+
+// Get ALL transactions for an account including income
+export const getAllTransactionsByAccount = async (accountId) => {
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .eq('account_id', accountId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+
   return data.map((item) => ({
     ...item,
     title: item.description,

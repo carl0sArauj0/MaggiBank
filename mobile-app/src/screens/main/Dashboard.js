@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import Header from '../../components/layout/Header';
 import CardContainer from '../../components/ui/CardContainer';
 import MaggiButton from '../../components/ui/MaggiButton';
 import { useAuth } from '../../context/AuthContext';
+import { useFocusEffect } from '@react-navigation/native';
 import useAccounts from '../../hooks/useAccounts';
 import useExpenses from '../../hooks/useExpenses';
 import { colors } from '../../theme/colors';
@@ -68,6 +69,13 @@ const Dashboard = ({ navigation }) => {
     fetchAccounts();
     fetchExpenses();
   };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchAccounts();
+      fetchExpenses();
+    }, [])
+  );
 
   const recentExpenses = expenses.slice(0, 3);
 
