@@ -27,7 +27,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "analyticsUrl": "http://192.168.1.5:8000"
-    }
+  "analyticsUrl": "https://carl0sArauj0-maggibank-backend.hf.space"
+}
   }
 }
