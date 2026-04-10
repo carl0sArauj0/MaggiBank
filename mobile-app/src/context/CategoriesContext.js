@@ -1,46 +1,97 @@
-import React, { createContext, useState, useContext } from 'react';
-
-const DEFAULT_CATEGORIES = [
-  { id: '1', label: 'Comida', icon: '🍔', active: true, isDefault: true },
-  { id: '2', label: 'Transporte', icon: '🚗', active: true, isDefault: true },
-  { id: '3', label: 'Arriendo', icon: '🏠', active: true, isDefault: true },
-  { id: '4', label: 'Salud', icon: '💊', active: true, isDefault: true },
-  { id: '5', label: 'Entretenimiento', icon: '🎬', active: true, isDefault: true },
-  { id: '6', label: 'Ropa', icon: '👕', active: true, isDefault: true },
-  { id: '7', label: 'Educación', icon: '📚', active: true, isDefault: true },
-  { id: '8', label: 'Otros', icon: '◈', active: true, isDefault: true },
-];
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import {
+  getCategories,
+  createCategory,
+  toggleCategoryActive,
+  deleteCategoryFromDB,
+} from '../api/categories';
+import { supabase } from '../api/supabaseClient';
 
 const CategoriesContext = createContext({});
 
 export const CategoriesProvider = ({ children }) => {
-  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const addCategory = (category) => {
-    setCategories((prev) => [...prev, category]);
+  const fetchCategories = async () => {
+    try {
+      const data = await getCategories();
+      setCategories(data);
+    } catch (err) {
+      console.log('Categories fetch error:', err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const toggleCategory = (id) => {
-    setCategories((prev) =>
-      prev.map((cat) =>
-        cat.id === id ? { ...cat, active: !cat.active } : cat
-      )
+  useEffect(() => {
+    // Listen for auth state — only fetch when user is logged in
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          fetchCategories();
+        } else {
+          setCategories([]);
+        }
+      }
     );
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const addCategory = async (category) => {
+    try {
+      const newCat = await createCategory(category);
+      setCategories((prev) => [...prev, newCat]);
+    } catch (err) {
+      throw err;
+    }
   };
 
-  const deleteCategory = (id) => {
-    setCategories((prev) => prev.filter((cat) => cat.id !== id));
+  const toggleCategory = async (id) => {
+    const category = categories.find((c) => c.id === id);
+    if (!category) return;
+    try {
+      await toggleCategoryActive(id, !category.active);
+      setCategories((prev) =>
+        prev.map((cat) =>
+          cat.id === id ? { ...cat, active: !cat.active } : cat
+        )
+      );
+    } catch (err) {
+      console.log('Toggle error:', err.message);
+    }
+  };
+
+  const deleteCategory = async (id) => {
+    try {
+      await deleteCategoryFromDB(id);
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+    } catch (err) {
+      console.log('Delete error:', err.message);
+    }
   };
 
   const activeCategories = categories.filter((cat) => cat.active);
+
+  // Build icon map for expense list — case insensitive
+  const getCategoryIcon = (categoryName) => {
+    if (!categoryName) return '◈';
+    const found = categories.find(
+      (cat) => cat.label.toLowerCase() === categoryName.toLowerCase()
+    );
+    return found ? found.icon : '◈';
+  };
 
   return (
     <CategoriesContext.Provider value={{
       categories,
       activeCategories,
+      loading,
       addCategory,
       toggleCategory,
       deleteCategory,
+      fetchCategories,
+      getCategoryIcon,
     }}>
       {children}
     </CategoriesContext.Provider>

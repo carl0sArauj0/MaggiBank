@@ -20,7 +20,7 @@ import { typography } from '../../theme/typography';
 import { formatCurrency } from '../../utils/formatters';
 import AddTransaction from './AddTransaction';
 
-const ExpenseItem = ({ expense, onRequestDelete, categoryIconMap }) => {
+const ExpenseItem = ({ expense, onRequestDelete, getCategoryIcon }) => {
   const renderRightActions = () => (
     <TouchableOpacity
       style={styles.deleteAction}
@@ -42,7 +42,7 @@ const ExpenseItem = ({ expense, onRequestDelete, categoryIconMap }) => {
         <View style={styles.expenseRow}>
           <View style={styles.expenseIcon}>
             <Text style={styles.expenseIconText}>
-              {categoryIconMap[expense.category] || '◈'}
+              {getCategoryIcon(expense.category_name || expense.category)}
             </Text>
           </View>
           <View style={styles.expenseInfo}>
@@ -62,22 +62,19 @@ const ExpenseItem = ({ expense, onRequestDelete, categoryIconMap }) => {
 
 const ExpensesList = () => {
   const { expenses, loading, totalExpenses, removeExpense, fetchExpenses } = useExpenses();
-  const { activeCategories } = useCategories();
+  const { activeCategories, getCategoryIcon } = useCategories();
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'warning', buttons: null });
   const closeAlert = () => setAlertConfig(c => ({ ...c, visible: false }));
 
-  const categoryIconMap = activeCategories.reduce((map, cat) => {
-    map[cat.label] = cat.icon;
-    return map;
-  }, {});
-
   const categories = ['Todos', ...activeCategories.map((cat) => cat.label)];
 
   const filteredExpenses = selectedCategory === 'Todos'
     ? expenses
-    : expenses.filter((e) => e.category === selectedCategory);
+    : expenses.filter((e) =>
+        (e.category_name || e.category)?.toLowerCase() === selectedCategory.toLowerCase()
+      );
 
   const handleDelete = async (id) => {
   try {
@@ -157,7 +154,7 @@ const ExpensesList = () => {
             <ExpenseItem
               expense={item}
               onRequestDelete={handleRequestDelete}
-              categoryIconMap={categoryIconMap}
+              getCategoryIcon={getCategoryIcon}
             />
           )}
         />

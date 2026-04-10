@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   Switch,
+  ActivityIndicator,
 } from 'react-native';
 import ScreenWrapper from '../../components/layout/ScreenWrapper';
 import Header from '../../components/layout/Header';
@@ -58,37 +59,24 @@ const CategoryItem = ({ category, onToggle, onDelete }) => (
 
 const Categories = () => {
   const { user, logout } = useAuth();
-  const { categories, addCategory, toggleCategory, deleteCategory } = useCategories();
+  const { categories, addCategory, toggleCategory, deleteCategory, loading } = useCategories();
   const [showAddModal, setShowAddModal] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('◈');
   const [nameError, setNameError] = useState('');
+  const [saving, setSaving] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ visible: false, title: '', message: '', type: 'warning', buttons: null });
   const closeAlert = () => setAlertConfig(c => ({ ...c, visible: false }));
 
-const handleToggle = (id) => toggleCategory(id);
-
-  const handleDelete = (id) => {
-    setAlertConfig({
-      visible: true,
-      title: 'Eliminar categoría',
-      message: '¿Estás seguro? Esta acción no se puede deshacer.',
-      type: 'warning',
-      buttons: [
-        { text: 'Cancelar', style: 'cancel', onPress: closeAlert },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: () => {
-            closeAlert();
-            deleteCategory(id);
-          },
-        },
-      ],
-    });
+const handleToggle = async (id) => {
+    await toggleCategory(id);
   };
 
-const handleAddCategory = () => {
+  const handleDelete = async (id) => {
+    await deleteCategory(id);
+  };
+
+const handleAddCategory = async () => {
   if (!newCategoryName.trim()) {
     setNameError('El nombre es requerido');
     return;
@@ -99,17 +87,21 @@ const handleAddCategory = () => {
     setNameError('Esta categoría ya existe');
     return;
   }
-  addCategory({
-    id: Date.now().toString(),
-    label: newCategoryName.trim(),
-    icon: selectedIcon,
-    active: true,
-    isDefault: false,
-  });
-  setNewCategoryName('');
-  setSelectedIcon('◈');
-  setNameError('');
-  setShowAddModal(false);
+  try {
+    setSaving(true);
+    await addCategory({
+      label: newCategoryName.trim(),
+      icon: selectedIcon,
+    });
+    setNewCategoryName('');
+    setSelectedIcon('◈');
+    setNameError('');
+    setShowAddModal(false);
+  } catch (err) {
+    setNameError(err.message || 'Error al crear la categoría');
+  } finally {
+    setSaving(false);
+  }
 };
 
   const handleLogout = () => {
@@ -126,6 +118,17 @@ const handleAddCategory = () => {
   };
 
   const activeCount = categories.filter((c) => c.active).length;
+
+  if (loading) {
+    return (
+      <ScreenWrapper>
+        <Header title="Configuración" showGreeting={false} showLogo={false} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.light} />
+        </View>
+      </ScreenWrapper>
+    );
+  }
 
   return (
     <ScreenWrapper>
@@ -279,8 +282,9 @@ const handleAddCategory = () => {
                 style={styles.modalCancelButton}
               />
               <MaggiButton
-                title="Crear"
+                title={saving ? 'Creando...' : 'Crear'}
                 onPress={handleAddCategory}
+                disabled={saving}
                 style={styles.modalCreateButton}
               />
             </View>
@@ -424,6 +428,11 @@ const styles = StyleSheet.create({
   },
   bottomPadding: {
     height: 32,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   modalOverlay: {
     flex: 1,
