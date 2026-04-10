@@ -196,8 +196,8 @@ const maggiStyles = StyleSheet.create({
     borderColor: colors.borderLight,
   },
   photo: {
-    width: '80%',
-    height: 300,
+    width: '100%',
+    height: 380,
   },
   content: {
     padding: 24,
