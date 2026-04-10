@@ -64,10 +64,18 @@ const AddAccount = ({ onClose }) => {
       });
       showAlert('¡Listo!', 'Cuenta creada correctamente.', 'success');
     } catch (err) {
-      if (err.message.includes('duplicate key') || err.message.includes('unique constraint') || err.message.includes('Duplicate key value')) {
+      const isDuplicate =
+        err.message?.includes('duplicate key') ||
+        err.message?.includes('unique constraint') ||
+        err.message?.includes('Duplicate key value') ||
+        err.code === '23505' ||
+        err.details?.includes('23505') ||
+        err.message?.includes('23505');
+
+      if (isDuplicate) {
         showAlert(
           'Cuenta duplicada',
-          '¡Ups! Ya tienes una cuenta con ese nombre y tipo. Por favor intenta con uno diferente.',
+          'Ya existe una cuenta con ese nombre y tipo. Por favor intenta con uno diferente.',
           'error'
         );
       } else {
