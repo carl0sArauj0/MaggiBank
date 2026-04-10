@@ -24,7 +24,6 @@ const AddTransaction = ({ onClose }) => {
   const { activeCategories } = useCategories();
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
-  const [notes, setNotes] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -58,7 +57,6 @@ const AddTransaction = ({ onClose }) => {
         amount: parseFloat(amount),
         category: selectedCategory,
         accountId: selectedAccount,
-        notes,
         date: new Date().toISOString(),
       });
       showAlert('¡Listo!', 'Gasto agregado correctamente.', 'success');
@@ -182,15 +180,7 @@ const AddTransaction = ({ onClose }) => {
             </View>
           </View>
 
-          {/* Notes */}
-          <MaggiInput
-            label="Notas (opcional)"
-            placeholder="Agrega una nota..."
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            numberOfLines={3}
-          />
+          
 
           {/* Submit */}
           <MaggiButton
