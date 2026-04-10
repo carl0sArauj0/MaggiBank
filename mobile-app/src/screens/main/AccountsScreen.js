@@ -30,6 +30,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertConfig, setAlertConfig] = useState({ title: '', message: '', type: 'success', buttons: null });
   const [addAmount, setAddAmount] = useState('');
+  const [currentBalance, setCurrentBalance] = useState(account.balance);
 
   const showAlert = (title, message, type = 'success', buttons = null) => {
     setAlertConfig({ title, message, type, buttons });
@@ -103,7 +104,8 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
   }
   try {
     setLoading(true);
-    await addBalanceToAccount(account.id, parseFloat(addAmount));
+    const updatedAccount = await addBalanceToAccount(account.id, parseFloat(addAmount));
+    setCurrentBalance(updatedAccount.balance);
 
     const { error } = await supabase
       .from('expenses')
@@ -162,7 +164,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
           <CardContainer variant="dark" style={styles.balanceCard}>
             <Text style={styles.balanceLabel}>BALANCE ACTUAL</Text>
             <Text style={styles.balanceAmount}>
-              {formatCurrency(account.balance)}
+              {formatCurrency(currentBalance)}
             </Text>
           </CardContainer>
 
@@ -209,8 +211,14 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
                         {expense.category}
                       </Text>
                     </View>
-                    <Text style={styles.expenseAmount}>
-                      -{formatCurrency(expense.amount)}
+                    <Text style={[
+                      styles.expenseAmount,
+                      (expense.category_name === 'Ingreso' || expense.category === 'Ingreso')
+                        ? styles.incomeAmount
+                        : styles.expenseAmount
+                    ]}>
+                      {(expense.category_name === 'Ingreso' || expense.category === 'Ingreso') ? '+' : '-'}
+                      {formatCurrency(expense.amount)}
                     </Text>
                   </View>
                 </CardContainer>
@@ -232,7 +240,7 @@ const AccountDetail = ({ account, onClose, onDeleted, onUpdated }) => {
             <View style={styles.updateModal}>
               <Text style={styles.updateTitle}>Agregar dinero</Text>
               <Text style={styles.updateSubtitle}>
-                Balance actual: {formatCurrency(account.balance)}
+                Balance actual: {formatCurrency(currentBalance)}
               </Text>
               <View style={styles.updateInputRow}>
                 <Text style={styles.updateCurrency}>$</Text>
@@ -384,7 +392,10 @@ const AccountsScreen = () => {
           visible={!!selectedAccount}
           animationType="slide"
           transparent={true}
-          onRequestClose={() => setSelectedAccount(null)}
+          onRequestClose={() => {
+            setSelectedAccount(null);
+            fetchAccounts();
+          }}
         >
           <AccountDetail
             account={selectedAccount}
@@ -603,6 +614,12 @@ const styles = StyleSheet.create({
   expenseAmount: {
     ...typography.styles.body,
     color: colors.error,
+    fontFamily: typography.heading,
+    fontSize: 13,
+  },
+  incomeAmount: {
+    ...typography.styles.body,
+    color: colors.success,
     fontFamily: typography.heading,
     fontSize: 13,
   },
