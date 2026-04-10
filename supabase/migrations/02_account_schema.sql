@@ -14,6 +14,5 @@ CREATE TABLE public.accounts (
 -- 2. Security (RLS)
 ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can manage their own accounts" 
-ON accounts FOR ALL 
-UNIQUE(user_id, name, type)
+CCREATE UNIQUE INDEX unique_account_user_name_type_idx 
+ON public.accounts (user_id, LOWER(name), LOWER(type));
